@@ -1,0 +1,653 @@
+{
+    "$schema": "https://design-tokens.github.io/community-group/format/",
+    "metadata": {
+        "description": "Design tokens baseados nas diretrizes do sistema Hotmart / Cosmos DS",
+        "version": "1.0.0"
+    },
+    "font": {
+        "family": {
+            "hotmart-sans": {
+                "$value": "'Hotmart Sans', sans-serif",
+                "$type": "fontFamily",
+                "$description": "Fonte principal da Hotmart"
+            },
+            "hotmart-display": {
+                "$value": "'Hotmart Display', serif",
+                "$type": "fontFamily",
+                "$description": "Fonte display da Hotmart"
+            },
+            "nunito-sans": {
+                "$value": "'Nunito Sans', sans-serif",
+                "$type": "fontFamily",
+                "$description": "Fonte auxiliar para headings específicos (h3)"
+            }
+        },
+        "size": {
+            "base": {
+                "$value": "16px",
+                "$type": "fontSize",
+                "$description": "Tamanho base do documento (html font-size)"
+            },
+            "xs": {
+                "$value": "12px",
+                "$type": "fontSize"
+            },
+            "sm": {
+                "$value": "14px",
+                "$type": "fontSize"
+            },
+            "lg": {
+                "$value": "16px",
+                "$type": "fontSize"
+            },
+            "xl": {
+                "$value": "18px",
+                "$type": "fontSize"
+            },
+            "2xl": {
+                "$value": "24px",
+                "$type": "fontSize"
+            },
+            "3xl": {
+                "$value": "30px",
+                "$type": "fontSize"
+            },
+            "4xl": {
+                "$value": "36px",
+                "$type": "fontSize"
+            }
+        },
+        "weight": {
+            "normal": {
+                "$value": 400,
+                "$type": "fontWeight"
+            },
+            "medium": {
+                "$value": 500,
+                "$type": "fontWeight"
+            },
+            "bold": {
+                "$value": 700,
+                "$type": "fontWeight"
+            }
+        },
+        "lineHeight": {
+            "none": {
+                "$value": "0",
+                "$type": "lineHeight",
+                "$description": "Sem line-height"
+            },
+            "tight": {
+                "$value": "16px",
+                "$type": "lineHeight"
+            },
+            "normal": {
+                "$value": "20px",
+                "$type": "lineHeight"
+            },
+            "relaxed": {
+                "$value": "24px",
+                "$type": "lineHeight"
+            },
+            "loose": {
+                "$value": "32px",
+                "$type": "lineHeight"
+            },
+            "xl": {
+                "$value": "36px",
+                "$type": "lineHeight"
+            }
+        }
+    },
+    "spacing": {
+        "1": {
+            "$value": "4px",
+            "$type": "spacing"
+        },
+        "2": {
+            "$value": "6px",
+            "$type": "spacing"
+        },
+        "3": {
+            "$value": "8px",
+            "$type": "spacing"
+        },
+        "4": {
+            "$value": "10px",
+            "$type": "spacing"
+        },
+        "5": {
+            "$value": "12px",
+            "$type": "spacing"
+        },
+        "6": {
+            "$value": "16px",
+            "$type": "spacing"
+        },
+        "7": {
+            "$value": "18px",
+            "$type": "spacing"
+        },
+        "8": {
+            "$value": "20px",
+            "$type": "spacing"
+        },
+        "9": {
+            "$value": "24px",
+            "$type": "spacing"
+        },
+        "10": {
+            "$value": "28px",
+            "$type": "spacing"
+        },
+        "11": {
+            "$value": "32px",
+            "$type": "spacing"
+        },
+        "12": {
+            "$value": "40px",
+            "$type": "spacing"
+        },
+        "13": {
+            "$value": "48px",
+            "$type": "spacing"
+        },
+        "14": {
+            "$value": "64px",
+            "$type": "spacing"
+        }
+    },
+    "size": {
+        "icon": {
+            "sm": {
+                "$value": "12px",
+                "$type": "dimension"
+            },
+            "md": {
+                "$value": "14px",
+                "$type": "dimension"
+            },
+            "base": {
+                "$value": "16px",
+                "$type": "dimension"
+            },
+            "lg": {
+                "$value": "18px",
+                "$type": "dimension"
+            }
+        },
+        "button": {
+            "sm": {
+                "$value": "28px",
+                "$type": "dimension"
+            },
+            "md": {
+                "$value": "32px",
+                "$type": "dimension"
+            },
+            "base": {
+                "$value": "40px",
+                "$type": "dimension"
+            }
+        },
+        "avatar": {
+            "$value": "40px",
+            "$type": "dimension"
+        },
+        "logo": {
+            "$value": "13px",
+            "$type": "dimension"
+        }
+    },
+    "borderRadius": {
+        "sm": {
+            "$value": "4px",
+            "$type": "borderRadius",
+            "$description": "calc(radius - 2px)"
+        },
+        "md": {
+            "$value": "6px",
+            "$type": "borderRadius",
+            "$description": "Raio padrão (--radius)"
+        },
+        "button": {
+            "$value": "6px",
+            "$type": "borderRadius",
+            "$description": "Raio para botões"
+        },
+        "lg": {
+            "$value": "8px",
+            "$type": "borderRadius",
+            "$description": "Raio para cards (--radius-card)"
+        },
+        "xl": {
+            "$value": "12px",
+            "$type": "borderRadius",
+            "$description": "calc(radius-card + 4px)"
+        }
+    },
+    "shadow": {
+        "sm": {
+            "$value": "0px 1px 2px 0px rgba(0, 0, 0, 0.05)",
+            "$type": "shadow",
+            "$description": "Elevação pequena para cards e modais"
+        }
+    },
+    "color": {
+        "light": {
+            "background": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color",
+                "$description": "Cor de fundo padrão da aplicação"
+            },
+            "foreground": {
+                "$value": "rgba(13, 13, 13, 1.00)",
+                "$type": "color",
+                "$description": "Texto/elementos sobre o background"
+            },
+            "card": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color",
+                "$description": "Fundo de cards, modais e containers"
+            },
+            "card-foreground": {
+                "$value": "rgba(13, 13, 13, 1.00)",
+                "$type": "color",
+                "$description": "Texto/elementos sobre cards"
+            },
+            "popover": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color",
+                "$description": "Fundo de dropdowns e tooltips"
+            },
+            "popover-foreground": {
+                "$value": "rgba(13, 13, 13, 1.00)",
+                "$type": "color",
+                "$description": "Texto/elementos sobre popovers"
+            },
+            "primary": {
+                "$value": "rgba(13, 13, 13, 1.00)",
+                "$type": "color",
+                "$description": "Cor primária para botões e elementos interativos"
+            },
+            "primary-foreground": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color",
+                "$description": "Texto/elementos sobre primary"
+            },
+            "secondary": {
+                "$value": "rgba(245, 243, 239, 1.00)",
+                "$type": "color",
+                "$description": "Cor secundária para botões não destrutivos"
+            },
+            "secondary-foreground": {
+                "$value": "rgba(13, 13, 13, 1.00)",
+                "$type": "color",
+                "$description": "Texto/elementos sobre secondary"
+            },
+            "muted": {
+                "$value": "rgba(234, 233, 231, 1.00)",
+                "$type": "color",
+                "$description": "Cor para elementos menos proeminentes"
+            },
+            "muted-foreground": {
+                "$value": "rgba(122, 119, 115, 1.00)",
+                "$type": "color",
+                "$description": "Texto/elementos sobre muted"
+            },
+            "accent": {
+                "$value": "rgba(255, 64, 0, 1.00)",
+                "$type": "color",
+                "$description": "Cor de destaque para highlights e interações"
+            },
+            "accent-foreground": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color",
+                "$description": "Texto/elementos sobre accent"
+            },
+            "destructive": {
+                "$value": "rgba(226, 47, 77, 1.00)",
+                "$type": "color",
+                "$description": "Cor para ações destrutivas e erros"
+            },
+            "destructive-foreground": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color",
+                "$description": "Texto/elementos sobre destructive"
+            },
+            "border": {
+                "$value": "rgba(195, 191, 184, 1.00)",
+                "$type": "color",
+                "$description": "Cor de borda padrão"
+            },
+            "input": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color",
+                "$description": "Cor do input preenchido"
+            },
+            "input-background": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color",
+                "$description": "Fundo padrão de inputs e text areas"
+            },
+            "ring": {
+                "$value": "rgba(13, 13, 13, 1.00)",
+                "$type": "color",
+                "$description": "Cor de foco e outlines"
+            },
+            "chart-1": {
+                "$value": "rgba(68, 208, 255, 1.00)",
+                "$type": "color",
+                "$description": "Cor de elemento em gráficos"
+            },
+            "chart-2": {
+                "$value": "rgba(180, 142, 255, 1.00)",
+                "$type": "color",
+                "$description": "Cor de elemento em gráficos"
+            },
+            "chart-3": {
+                "$value": "rgba(109, 255, 150, 1.00)",
+                "$type": "color",
+                "$description": "Cor de elemento em gráficos"
+            },
+            "chart-4": {
+                "$value": "rgba(255, 212, 80, 1.00)",
+                "$type": "color",
+                "$description": "Cor de elemento em gráficos"
+            },
+            "chart-5": {
+                "$value": "rgba(255, 64, 0, 1.00)",
+                "$type": "color",
+                "$description": "Cor de elemento em gráficos"
+            },
+            "sidebar": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color",
+                "$description": "Fundo de sidebars e menus persistentes"
+            },
+            "sidebar-foreground": {
+                "$value": "rgba(13, 13, 13, 1.00)",
+                "$type": "color",
+                "$description": "Texto/elementos sobre sidebar"
+            },
+            "sidebar-primary": {
+                "$value": "rgba(13, 13, 13, 1.00)",
+                "$type": "color",
+                "$description": "Cor primária na sidebar"
+            },
+            "sidebar-primary-foreground": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color",
+                "$description": "Texto sobre sidebar-primary"
+            },
+            "sidebar-accent": {
+                "$value": "rgba(13, 13, 13, 0.03)",
+                "$type": "color",
+                "$description": "Destaque na sidebar"
+            },
+            "sidebar-accent-foreground": {
+                "$value": "rgba(13, 13, 13, 1.00)",
+                "$type": "color",
+                "$description": "Texto sobre sidebar-accent"
+            },
+            "sidebar-border": {
+                "$value": "rgba(195, 191, 184, 1.00)",
+                "$type": "color",
+                "$description": "Borda na sidebar"
+            },
+            "sidebar-ring": {
+                "$value": "rgba(13, 13, 13, 1.00)",
+                "$type": "color",
+                "$description": "Foco na sidebar"
+            }
+        },
+        "dark": {
+            "background": {
+                "$value": "rgba(13, 13, 13, 1.00)",
+                "$type": "color"
+            },
+            "foreground": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color"
+            },
+            "card": {
+                "$value": "rgba(13, 13, 13, 1.00)",
+                "$type": "color"
+            },
+            "card-foreground": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color"
+            },
+            "popover": {
+                "$value": "rgba(13, 13, 13, 1.00)",
+                "$type": "color"
+            },
+            "popover-foreground": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color"
+            },
+            "primary": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color"
+            },
+            "primary-foreground": {
+                "$value": "rgba(13, 13, 13, 1.00)",
+                "$type": "color"
+            },
+            "secondary": {
+                "$value": "rgba(40, 40, 40, 1.00)",
+                "$type": "color"
+            },
+            "secondary-foreground": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color"
+            },
+            "muted": {
+                "$value": "rgba(60, 60, 60, 1.00)",
+                "$type": "color"
+            },
+            "muted-foreground": {
+                "$value": "rgba(160, 160, 160, 1.00)",
+                "$type": "color"
+            },
+            "accent": {
+                "$value": "rgba(255, 64, 0, 1.00)",
+                "$type": "color"
+            },
+            "accent-foreground": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color"
+            },
+            "destructive": {
+                "$value": "rgba(226, 47, 77, 1.00)",
+                "$type": "color"
+            },
+            "destructive-foreground": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color"
+            },
+            "border": {
+                "$value": "rgba(80, 80, 80, 1.00)",
+                "$type": "color"
+            },
+            "input": {
+                "$value": "rgba(40, 40, 40, 1.00)",
+                "$type": "color"
+            },
+            "input-background": {
+                "$value": "rgba(40, 40, 40, 1.00)",
+                "$type": "color"
+            },
+            "ring": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color"
+            },
+            "chart-1": {
+                "$value": "rgba(68, 208, 255, 1.00)",
+                "$type": "color"
+            },
+            "chart-2": {
+                "$value": "rgba(180, 142, 255, 1.00)",
+                "$type": "color"
+            },
+            "chart-3": {
+                "$value": "rgba(109, 255, 150, 1.00)",
+                "$type": "color"
+            },
+            "chart-4": {
+                "$value": "rgba(255, 212, 80, 1.00)",
+                "$type": "color"
+            },
+            "chart-5": {
+                "$value": "rgba(255, 64, 0, 1.00)",
+                "$type": "color"
+            },
+            "sidebar": {
+                "$value": "rgba(20, 20, 20, 1.00)",
+                "$type": "color"
+            },
+            "sidebar-foreground": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color"
+            },
+            "sidebar-primary": {
+                "$value": "rgba(255, 64, 0, 1.00)",
+                "$type": "color"
+            },
+            "sidebar-primary-foreground": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color"
+            },
+            "sidebar-accent": {
+                "$value": "rgba(60, 60, 60, 1.00)",
+                "$type": "color"
+            },
+            "sidebar-accent-foreground": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color"
+            },
+            "sidebar-border": {
+                "$value": "rgba(80, 80, 80, 1.00)",
+                "$type": "color"
+            },
+            "sidebar-ring": {
+                "$value": "rgba(255, 255, 255, 1.00)",
+                "$type": "color"
+            }
+        }
+    },
+    "typography": {
+        "h1": {
+            "fontSize": {
+                "$value": "{font.size.4xl}"
+            },
+            "fontFamily": {
+                "$value": "{font.family.hotmart-sans}"
+            },
+            "fontWeight": {
+                "$value": "{font.weight.normal}"
+            },
+            "lineHeight": {
+                "$value": "1.5"
+            }
+        },
+        "h2": {
+            "fontSize": {
+                "$value": "{font.size.2xl}"
+            },
+            "fontFamily": {
+                "$value": "{font.family.hotmart-sans}"
+            },
+            "fontWeight": {
+                "$value": "{font.weight.normal}"
+            },
+            "lineHeight": {
+                "$value": "1.5"
+            }
+        },
+        "h3": {
+            "fontSize": {
+                "$value": "{font.size.xl}"
+            },
+            "fontFamily": {
+                "$value": "{font.family.nunito-sans}"
+            },
+            "fontWeight": {
+                "$value": "{font.weight.bold}"
+            },
+            "lineHeight": {
+                "$value": "1.5"
+            }
+        },
+        "h4": {
+            "fontSize": {
+                "$value": "{font.size.lg}"
+            },
+            "fontFamily": {
+                "$value": "{font.family.hotmart-sans}"
+            },
+            "fontWeight": {
+                "$value": "{font.weight.bold}"
+            },
+            "lineHeight": {
+                "$value": "1.5"
+            }
+        },
+        "body": {
+            "fontSize": {
+                "$value": "{font.size.lg}"
+            },
+            "fontFamily": {
+                "$value": "{font.family.hotmart-sans}"
+            },
+            "fontWeight": {
+                "$value": "{font.weight.normal}"
+            },
+            "lineHeight": {
+                "$value": "1.5"
+            }
+        },
+        "label": {
+            "fontSize": {
+                "$value": "{font.size.sm}"
+            },
+            "fontFamily": {
+                "$value": "{font.family.hotmart-sans}"
+            },
+            "fontWeight": {
+                "$value": "{font.weight.normal}"
+            },
+            "lineHeight": {
+                "$value": "1.5"
+            }
+        },
+        "button": {
+            "fontSize": {
+                "$value": "{font.size.lg}"
+            },
+            "fontFamily": {
+                "$value": "{font.family.hotmart-sans}"
+            },
+            "fontWeight": {
+                "$value": "{font.weight.medium}"
+            },
+            "lineHeight": {
+                "$value": "1.5"
+            }
+        },
+        "input": {
+            "fontSize": {
+                "$value": "{font.size.lg}"
+            },
+            "fontFamily": {
+                "$value": "{font.family.hotmart-sans}"
+            },
+            "fontWeight": {
+                "$value": "{font.weight.normal}"
+            },
+            "lineHeight": {
+                "$value": "1.5"
+            }
+        }
+    }
+}

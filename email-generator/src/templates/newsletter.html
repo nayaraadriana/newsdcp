@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Newsletter DCP — Hotmart</title>
+    <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+    <style>
+        body, table, td, a {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            outline: none;
+            text-decoration: none;
+            display: block;
+        }
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background-color: #f5f3ef;
+        }
+        @media screen and (max-width: 620px) {
+            .email-container { width: 100% !important; }
+            .hero-img { height: auto !important; }
+            .highlight-item { padding: 16px !important; }
+            .stack-on-mobile { display: block !important; width: 100% !important; }
+            .signature-photo { width: 80px !important; height: 80px !important; }
+            .section-padding { padding: 24px 16px !important; }
+        }
+    </style>
+</head>
+
+<body style="margin:0; padding:0; background-color:#f5f3ef;">
+
+    <!-- Wrapper externo -->
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
+        style="background-color:#f5f3ef;">
+        <tr>
+            <td align="center" style="padding: 24px 10px;">
+
+                <!-- Container principal — 600px -->
+                <table role="presentation" class="email-container" cellspacing="0" cellpadding="0" border="0"
+                    width="600"
+                    style="background-color:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0px 1px 2px 0px rgba(0,0,0,0.05);">
+
+                    {{SECTIONS}}
+
+                </table>
+                <!-- /Container principal -->
+
+            </td>
+        </tr>
+    </table>
+    <!-- /Wrapper externo -->
+
+</body>
+
+</html>
