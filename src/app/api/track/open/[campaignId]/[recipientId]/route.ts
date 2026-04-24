@@ -7,9 +7,9 @@ const HEADER_IMAGE_URL = process.env.HEADER_IMAGE_URL!;
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { campaignId: string; recipientId: string } }
+    { params }: { params: Promise<{ campaignId: string; recipientId: string }> }
 ) {
-    const { campaignId, recipientId } = params;
+    const { campaignId, recipientId } = await params;
     const ip = req.headers.get('x-forwarded-for') ?? 'unknown';
     const userAgent = req.headers.get('user-agent') ?? '';
 

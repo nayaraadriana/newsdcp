@@ -3,10 +3,11 @@ import { getCampaignStats } from '@/lib/db';
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { campaignId: string } }
+  { params }: { params: Promise<{ campaignId: string }> }
 ) {
   try {
-    const stats = await getCampaignStats(params.campaignId);
+    const { campaignId } = await params;
+    const stats = await getCampaignStats(campaignId);
 
     if (!stats.campaign) {
       return NextResponse.json({ error: 'Campanha não encontrada.' }, { status: 404 });
