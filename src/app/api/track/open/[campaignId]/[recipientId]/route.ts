@@ -13,7 +13,7 @@ export async function GET(
     const ip = req.headers.get('x-forwarded-for') ?? 'unknown';
     const userAgent = req.headers.get('user-agent') ?? '';
 
-    registerOpen(recipientId, campaignId, ip, userAgent)
+    await registerOpen(recipientId, campaignId, ip, userAgent)
         .catch((err) => console.error('[TRACK_OPEN_ERROR]', err));
 
     const imageResponse = await fetch(HEADER_IMAGE_URL, {

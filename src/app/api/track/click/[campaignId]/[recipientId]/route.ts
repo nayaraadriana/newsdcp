@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { registerClick } from '@/lib/db';
 
+export const runtime = 'edge';
+
 export async function GET(
     req: NextRequest,
     { params }: { params: Promise<{ campaignId: string; recipientId: string }> }
@@ -18,7 +20,7 @@ export async function GET(
     const originalUrl = decodeURIComponent(rawUrl);
     const linkLabel = decodeURIComponent(label);
 
-    registerClick(recipientId, campaignId, originalUrl, linkLabel, ip, userAgent)
+    await registerClick(recipientId, campaignId, originalUrl, linkLabel, ip, userAgent)
         .catch((err) => console.error('[TRACK_CLICK_ERROR]', err));
 
     return NextResponse.redirect(originalUrl, 302);
