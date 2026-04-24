@@ -3,7 +3,8 @@ import { registerOpen } from '@/lib/db';
 
 //export const runtime = 'edge';
 
-const HEADER_IMAGE_URL = process.env.HEADER_IMAGE_URL!;
+const FALLBACK_HEADER_URL = "https://newsletterdcp.s3.us-east-2.amazonaws.com/template-resources/header_newsletter.jpg";
+const HEADER_IMAGE_URL = process.env.HEADER_IMAGE_URL || FALLBACK_HEADER_URL;
 
 export async function GET(
     req: NextRequest,

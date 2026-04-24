@@ -2,13 +2,22 @@ import { NextResponse } from "next/server";
 import { renderTemplate } from "@/lib/renderTemplate";
 import { createCampaign, addRecipient } from "@/lib/db";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "";
-const HEADER_S3_URL = process.env.HEADER_IMAGE_URL ?? "";
+const BASE_URL = (process.env.NEXT_PUBLIC_APP_URL || "").replace(/\/$/, "");
+const FALLBACK_HEADER_URL = "https://newsletterdcp.s3.us-east-2.amazonaws.com/template-resources/header_newsletter.jpg";
+const HEADER_S3_URL = process.env.HEADER_IMAGE_URL || FALLBACK_HEADER_URL;
 
 function injectTracking(html, campaignId, recipientId) {
   // Substitui o src do header pela URL de tracking (registra abertura)
   const openUrl = `${BASE_URL}/api/track/open/${campaignId}/${recipientId}`;
-  let tracked = html.replace(HEADER_S3_URL, openUrl);
+  
+  let tracked = html;
+  if (HEADER_S3_URL && html.includes(HEADER_S3_URL)) {
+    tracked = html.replace(HEADER_S3_URL, openUrl);
+  } else {
+    // Fallback: se não encontrar a imagem para substituir, injeta um pixel invisível
+    const pixel = `<img src="${openUrl}" width="1" height="1" style="display:none;" alt="" />`;
+    tracked = html.replace('</body>', `${pixel}\n</body>`);
+  }
 
   // Envolve todos os links <a href="http..."> com redirect de tracking
   tracked = tracked.replace(
