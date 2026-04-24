@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 const SECTION_TYPES = [
   {
@@ -54,6 +55,15 @@ export default function Home() {
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
+  const [trackingEnabled, setTrackingEnabled] = useState(false);
+  const [tracking, setTracking] = useState({
+    campaignName: "",
+    subject: "",
+    recipientEmail: "",
+    recipientName: "",
+  });
+  const [campaignId, setCampaignId] = useState("");
+
   function addBlock() {
     setBlocks((prev) => [...prev, createBlock("highlight")]);
   }
@@ -79,6 +89,10 @@ export default function Home() {
     setBlocks(newBlocks);
   }
 
+  function updateTracking(field, value) {
+    setTracking((prev) => ({ ...prev, [field]: value }));
+  }
+
   function getSectionMeta(typeValue) {
     return SECTION_TYPES.find((t) => t.value === typeValue);
   }
@@ -95,12 +109,16 @@ export default function Home() {
     setIsLoading(true);
     setError("");
     setPreviewHtml("");
+    setCampaignId("");
 
     try {
+      const body = { blocks };
+      if (trackingEnabled) body.tracking = tracking;
+
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ blocks }),
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();
@@ -111,6 +129,7 @@ export default function Home() {
       }
 
       setPreviewHtml(data.html);
+      if (data.campaignId) setCampaignId(data.campaignId);
     } catch (err) {
       setError("Falha na conexão. Verifique se o servidor está rodando.");
     } finally {
@@ -136,15 +155,22 @@ export default function Home() {
     URL.revokeObjectURL(url);
   }
 
+  async function handleCopyCampaignId() {
+    await navigator.clipboard.writeText(campaignId);
+  }
+
   return (
     <div className="min-h-screen bg-[#f5f3ef] flex flex-col">
 
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <h1 className="text-lg font-bold text-[#0d0d0d]">
-          📧 Gerador de Newsletter
-        </h1>
-        <p className="text-sm text-[#7a7773]">DCP — Hotmart</p>
+      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-bold text-[#0d0d0d]">Gerador de Newsletter</h1>
+          <p className="text-sm text-[#7a7773]">DCP — Hotmart</p>
+        </div>
+        <Link href="/stats" className="text-sm text-[#ff4000] hover:underline font-medium">
+          Monitoramento →
+        </Link>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
@@ -154,6 +180,82 @@ export default function Home() {
 
           {/* Lista de blocos scrollável */}
           <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+
+            {/* Seção de rastreamento */}
+            <div className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
+              <button
+                onClick={() => setTrackingEnabled((v) => !v)}
+                className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-[#0d0d0d] hover:bg-gray-50 transition-colors"
+              >
+                <span className="flex items-center gap-2">
+                  <span
+                    className={`w-2 h-2 rounded-full ${trackingEnabled ? "bg-green-500" : "bg-gray-300"}`}
+                  />
+                  Rastreamento
+                </span>
+                <span className="text-gray-400 text-xs">
+                  {trackingEnabled ? "ativado ▲" : "desativado ▼"}
+                </span>
+              </button>
+
+              {trackingEnabled && (
+                <div className="px-4 pb-4 flex flex-col gap-3 border-t border-gray-100 pt-3">
+                  <p className="text-xs text-[#7a7773]">
+                    Preencha para registrar aberturas e cliques desta campanha.
+                  </p>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-[#0d0d0d]">
+                      Nome da campanha *
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
+                      placeholder="Ex: Newsletter Abril 2026"
+                      value={tracking.campaignName}
+                      onChange={(e) => updateTracking("campaignName", e.target.value)}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-[#0d0d0d]">
+                      Assunto do e-mail *
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
+                      placeholder="Ex: Novidades da semana"
+                      value={tracking.subject}
+                      onChange={(e) => updateTracking("subject", e.target.value)}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-[#0d0d0d]">
+                      E-mail do destinatário *
+                    </label>
+                    <input
+                      type="email"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
+                      placeholder="Ex: pessoa@hotmart.com"
+                      value={tracking.recipientEmail}
+                      onChange={(e) => updateTracking("recipientEmail", e.target.value)}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-[#0d0d0d]">
+                      Nome do destinatário
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
+                      placeholder="Ex: João Silva"
+                      value={tracking.recipientName}
+                      onChange={(e) => updateTracking("recipientName", e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Blocos de conteúdo */}
             {blocks.map((block, index) => {
               const meta = getSectionMeta(block.type);
               return (
@@ -281,7 +383,7 @@ export default function Home() {
               disabled={isLoading}
               className="w-full bg-[#ff4000] hover:bg-[#e63900] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors text-sm"
             >
-              {isLoading ? "Gerando..." : "✨ Gerar E-mail"}
+              {isLoading ? "Gerando..." : "Gerar E-mail"}
             </button>
 
             {previewHtml && (
@@ -290,13 +392,13 @@ export default function Home() {
                   onClick={handleCopyHtml}
                   className="flex-1 bg-white border border-gray-300 hover:border-[#ff4000] hover:text-[#ff4000] text-[#0d0d0d] font-medium py-2 rounded-lg transition-colors text-sm"
                 >
-                  {copied ? "✅ Copiado!" : "📋 Copiar HTML"}
+                  {copied ? "Copiado!" : "Copiar HTML"}
                 </button>
                 <button
                   onClick={handleDownload}
                   className="flex-1 bg-white border border-gray-300 hover:border-[#ff4000] hover:text-[#ff4000] text-[#0d0d0d] font-medium py-2 rounded-lg transition-colors text-sm"
                 >
-                  ⬇️ Baixar .html
+                  Baixar .html
                 </button>
               </div>
             )}
@@ -329,10 +431,30 @@ export default function Home() {
             <div className="w-full max-w-[640px] flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-[#7a7773]">
-                  Preview gerado com sucesso ✅
+                  Preview gerado com sucesso
                 </p>
                 <p className="text-xs text-[#7a7773]">Largura máxima: 600px</p>
               </div>
+
+              {campaignId && (
+                <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-semibold text-green-800">
+                      Rastreamento ativado
+                    </p>
+                    <p className="text-xs text-green-700 font-mono mt-0.5 break-all">
+                      {campaignId}
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleCopyCampaignId}
+                    className="shrink-0 text-xs text-green-700 border border-green-300 hover:bg-green-100 px-2 py-1 rounded transition-colors"
+                  >
+                    Copiar ID
+                  </button>
+                </div>
+              )}
+
               <iframe
                 srcDoc={previewHtml}
                 title="Preview do E-mail"
