@@ -19,10 +19,11 @@ function injectTracking(html, campaignId, recipientId) {
     tracked = html.replace('</body>', `${pixel}\n</body>`);
   }
 
-  // Envolve todos os links <a href="http..."> com redirect de tracking
+  // Envolve links externos com redirect de tracking (ignora URLs internas já rastreadas)
   tracked = tracked.replace(
     /<a\b([^>]*?)href="(https?:\/\/[^"]+)"([^>]*)>([\s\S]*?)<\/a>/gi,
-    (_, before, originalUrl, after, content) => {
+    (match, before, originalUrl, after, content) => {
+      if (originalUrl.includes('/api/track/')) return match;
       const label = content.replace(/<[^>]+>/g, "").trim();
       const encodedUrl = encodeURIComponent(originalUrl);
       const encodedLabel = encodeURIComponent(label);
@@ -46,15 +47,13 @@ export async function POST(request) {
       );
     }
 
-    const hasContent = blocks.some((b) => b.title?.trim() || b.text?.trim());
+    const hasContent = blocks.some((b) => b.title?.trim() || b.text?.trim() || (b.type === "button" && b.url?.trim()));
     if (!hasContent) {
       return NextResponse.json(
         { error: "Preencha pelo menos uma seção antes de gerar." },
         { status: 400 }
       );
     }
-
-    let html = renderTemplate(blocks);
 
     if (tracking) {
       const { campaignName, subject, recipientEmail, recipientName } = tracking;
@@ -72,11 +71,16 @@ export async function POST(request) {
       await createCampaign(campaignId, campaignName, subject);
       await addRecipient(recipientId, campaignId, recipientEmail, recipientName ?? "");
 
-      html = injectTracking(html, campaignId, recipientId);
+      const html = injectTracking(
+        await renderTemplate(blocks, campaignId),
+        campaignId,
+        recipientId
+      );
 
       return NextResponse.json({ html, campaignId, recipientId });
     }
 
+    const html = await renderTemplate(blocks, null);
     return NextResponse.json({ html });
   } catch (error) {
     console.error("[generate] Erro:", error);

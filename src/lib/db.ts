@@ -133,3 +133,29 @@ export async function registerClick(
     VALUES (${recipientId}, ${campaignId}, ${originalUrl}, ${linkLabel}, ${ip}, ${userAgent})
   `;
 }
+
+// ─── Links rastreados ────────────────────────────────────────────
+
+export async function registerTrackedLink(
+  originalUrl: string,
+  label: string,
+  campaignId: string
+): Promise<string> {
+  const existing = await sql`
+    SELECT id FROM tracked_links
+    WHERE campaign_id = ${campaignId} AND original_url = ${originalUrl}
+    LIMIT 1
+  `;
+
+  if (existing.length > 0) {
+    return `${process.env.NEXT_PUBLIC_APP_URL}/api/track/link/${existing[0].id}`;
+  }
+
+  const inserted = await sql`
+    INSERT INTO tracked_links (campaign_id, original_url, label)
+    VALUES (${campaignId}, ${originalUrl}, ${label})
+    RETURNING id
+  `;
+
+  return `${process.env.NEXT_PUBLIC_APP_URL}/api/track/link/${inserted[0].id}`;
+}

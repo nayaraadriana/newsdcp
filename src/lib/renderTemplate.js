@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { renderButtonSection } from "./renderButtonSection";
 
 const TEMPLATES_DIR = path.join(process.cwd(), "src", "templates");
 const PARTIALS_DIR = path.join(TEMPLATES_DIR, "partials");
@@ -49,9 +50,10 @@ const HIGHLIGHTS_BANNER = `
  * Monta o HTML final a partir da lista de blocos selecionados pelo usuário.
  *
  * @param {Array<{type: string, title: string, text: string, imageUrl?: string}>} blocks
- * @returns {string} HTML completo da newsletter
+ * @param {string | null} campaignId
+ * @returns {Promise<string>} HTML completo da newsletter
  */
-export function renderTemplate(blocks) {
+export async function renderTemplate(blocks, campaignId = null) {
   const wrapper = fs.readFileSync(
     path.join(TEMPLATES_DIR, "newsletter.html"),
     "utf-8"
@@ -108,6 +110,10 @@ export function renderTemplate(blocks) {
           TITULO_FIQUE_DE_OLHO: block.title,
           TEXTO_FIQUE_DE_OLHO: block.text,
         });
+        break;
+
+      case "button":
+        sections += await renderButtonSection(block, campaignId);
         break;
 
       default:
