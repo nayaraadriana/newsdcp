@@ -8,7 +8,9 @@ import { registerTrackedLink } from './db';
  * @returns {Promise<string>} HTML da seção
  */
 export async function renderButtonSection(section, campaignId) {
-  const trackUrl = await registerTrackedLink(section.url, section.text, campaignId);
+  const trackUrl = campaignId
+    ? await registerTrackedLink(section.url, section.text, campaignId)
+    : section.url;
 
   if (section.buttonStyle === 'large') {
     return `

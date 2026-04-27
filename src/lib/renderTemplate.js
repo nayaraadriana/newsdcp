@@ -15,6 +15,32 @@ function inject(template, data) {
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => data[key] ?? "");
 }
 
+/** Converte texto plano com quebras de linha ou listas em HTML */
+function formatText(text, style = "") {
+  if (!text) return "";
+  const lines = text.split("\n");
+  const result = [];
+  let listItems = [];
+
+  const flushList = () => {
+    if (listItems.length === 0) return;
+    result.push(`<ul style="margin:4px 0;padding-left:20px;">${listItems.join("")}</ul>`);
+    listItems = [];
+  };
+
+  for (const line of lines) {
+    if (/^[-*]\s+/.test(line.trim())) {
+      listItems.push(`<li style="margin:0 0 4px 0;${style}">${line.trim().replace(/^[-*]\s+/, "")}</li>`);
+    } else {
+      flushList();
+      result.push(line);
+    }
+  }
+  flushList();
+
+  return result.join("<br>");
+}
+
 /**
  * Banner do bloco Highlights — exibido apenas antes do primeiro highlight.
  * Fica como constante inline para não precisar de um arquivo extra.
@@ -63,7 +89,7 @@ export async function renderTemplate(blocks, campaignId = null) {
       case "intro":
         sections += inject(readPartial("intro.html"), {
           TITULO_INTRO: block.title,
-          TEXTO_INTRO: block.text,
+          TEXTO_INTRO: formatText(block.text, "font-family:'Hotmart Sans',sans-serif;font-size:16px;font-weight:400;line-height:1.6;color:#0d0d0d;"),
         });
         break;
 
@@ -71,7 +97,7 @@ export async function renderTemplate(blocks, campaignId = null) {
         sections += inject(readPartial("hero.html"), {
           IMAGEM_HERO: block.imageUrl || "",
           TITULO_HERO: block.title,
-          TEXTO_HERO: block.text,
+          TEXTO_HERO: formatText(block.text, "font-family:'Hotmart Sans',sans-serif;font-size:16px;font-weight:400;line-height:1.6;color:#0d0d0d;"),
         });
         break;
 
@@ -81,11 +107,10 @@ export async function renderTemplate(blocks, campaignId = null) {
         highlightBannerInserted = true;
         highlightIndex++;
 
-        // Injeta o banner (só no primeiro) e os dados do highlight
         let rendered = highlightPartial.replace("{{HIGHLIGHT_BANNER}}", banner);
         rendered = inject(rendered, {
           TITULO_HIGHLIGHT: block.title,
-          TEXTO_HIGHLIGHT: block.text,
+          TEXTO_HIGHLIGHT: formatText(block.text, "font-family:'Hotmart Sans',sans-serif;font-size:14px;font-weight:400;line-height:1.6;color:#ffffff;"),
           BG_COLOR: bgColor,
         });
         sections += rendered;
@@ -98,7 +123,7 @@ export async function renderTemplate(blocks, campaignId = null) {
           : "";
         sections += inject(readPartial("content.html"), {
           TITULO_CONTENT: block.title,
-          TEXTO_CONTENT: block.text,
+          TEXTO_CONTENT: formatText(block.text, "font-family:'Hotmart Sans',sans-serif;font-size:16px;font-weight:400;line-height:1.6;color:#0d0d0d;"),
           IMAGEM_CONTENT_BLOCK: imageBlock,
         });
         break;
@@ -107,7 +132,7 @@ export async function renderTemplate(blocks, campaignId = null) {
       case "fique_de_olho":
         sections += inject(readPartial("fique_de_olho.html"), {
           TITULO_FIQUE_DE_OLHO: block.title,
-          TEXTO_FIQUE_DE_OLHO: block.text,
+          TEXTO_FIQUE_DE_OLHO: formatText(block.text, "font-family:'Hotmart Sans',sans-serif;font-size:14px;font-weight:400;line-height:1.6;color:#0d0d0d;"),
         });
         break;
 
