@@ -30,6 +30,14 @@ const SECTION_TYPES = [
     placeholderText: "Ex: A área de Analytics ganhou um novo painel consolidado...",
   },
   {
+    value: "content",
+    label: "Content",
+    description: "Bloco de conteúdo com título, texto e imagem opcional",
+    hasImage: true,
+    placeholderTitle: "Ex: Como funciona o novo recurso",
+    placeholderText: "Ex: A partir desta semana, você pode acessar...",
+  },
+  {
     value: "fique_de_olho",
     label: "Fique de Olho",
     description: "Aviso ou novidade que merece atenção especial",

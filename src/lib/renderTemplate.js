@@ -21,25 +21,12 @@ function inject(template, data) {
  */
 const HIGHLIGHTS_BANNER = `
 <tr>
-  <td style="padding: 0; background-color:#ffffff;">
+  <td style="padding: 0; background-color:#0D0D0D;">
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
       <tr>
-        <td align="left" style="background-color: #ff4000; padding: 16px;">
-          <span style="
-            display: inline-flex; align-items: center; gap: 8px;
-            font-family: 'Hotmart Sans', sans-serif;
-            font-size: 18px; font-weight: 700; line-height: 1.5;
-            color: #ffffff; letter-spacing: 2px; text-transform: uppercase;
-          ">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round"
-              style="display:inline-block; vertical-align:middle; flex-shrink:0;">
-              <path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/>
-              <path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/>
-            </svg>
-            Highlights
-          </span>
+        <td align="center" style="padding: 8px;">
+          <img src="https://newsletterdcp.s3.us-east-2.amazonaws.com/template-resources/highlights.png"
+            alt="Highlights" width="100%" style="display:block; border:0; max-width:100%; height:auto;">
         </td>
       </tr>
     </table>
@@ -61,7 +48,7 @@ export async function renderTemplate(blocks, campaignId = null) {
 
   const highlightPartial = readPartial("highlight.html");
   // Cores de fundo alternadas para os highlights (zebra)
-  const highlightBgColors = ["#ffffff", "#f5f3ef"];
+  const highlightBgColors = ["#0D0D0D", "#0D0D0D"];
 
   let sections = "";
   // Controla se o banner de Highlights já foi inserido
@@ -102,6 +89,18 @@ export async function renderTemplate(blocks, campaignId = null) {
           BG_COLOR: bgColor,
         });
         sections += rendered;
+        break;
+      }
+
+      case "content": {
+        const imageBlock = block.imageUrl
+          ? `<img src="${block.imageUrl}" alt="${block.title}" width="504" style="width:100%;max-width:504px;height:auto;border-radius:8px;display:block;margin:20px auto 0 auto;">`
+          : "";
+        sections += inject(readPartial("content.html"), {
+          TITULO_CONTENT: block.title,
+          TEXTO_CONTENT: block.text,
+          IMAGEM_CONTENT_BLOCK: imageBlock,
+        });
         break;
       }
 
