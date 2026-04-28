@@ -26,8 +26,8 @@ export default function ButtonSectionFields({ section, onChange }) {
           type="text"
           className={INPUT_CLASS}
           placeholder="Ex: Acessar ferramenta"
-          value={section.text ?? ""}
-          onChange={(e) => onChange("text", e.target.value)}
+          value={section.buttonText ?? ""}
+          onChange={(e) => onChange("buttonText", e.target.value)}
         />
       </div>
 
@@ -39,8 +39,8 @@ export default function ButtonSectionFields({ section, onChange }) {
           type="url"
           className={INPUT_CLASS}
           placeholder="https://..."
-          value={section.url ?? ""}
-          onChange={(e) => onChange("url", e.target.value)}
+          value={section.buttonUrl ?? ""}
+          onChange={(e) => onChange("buttonUrl", e.target.value)}
         />
       </div>
     </>

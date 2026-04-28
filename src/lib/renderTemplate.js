@@ -15,6 +15,13 @@ function inject(template, data) {
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => data[key] ?? "");
 }
 
+/** Converte sintaxe [texto](url) em links HTML inline */
+function parseInlineLinks(text, linkStyle = "") {
+  return text.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, (_, label, url) => {
+    return `<a href="${url}" target="_blank" style="color:inherit;text-decoration:underline;${linkStyle}">${label}</a>`;
+  });
+}
+
 /** Converte texto plano com quebras de linha ou listas em HTML */
 function formatText(text, style = "") {
   if (!text) return "";
@@ -30,10 +37,11 @@ function formatText(text, style = "") {
 
   for (const line of lines) {
     if (/^[-*]\s+/.test(line.trim())) {
-      listItems.push(`<li style="margin:0 0 4px 0;${style}">${line.trim().replace(/^[-*]\s+/, "")}</li>`);
+      const content = parseInlineLinks(line.trim().replace(/^[-*]\s+/, ""));
+      listItems.push(`<li style="margin:0 0 4px 0;${style}">${content}</li>`);
     } else {
       flushList();
-      result.push(line);
+      result.push(parseInlineLinks(line));
     }
   }
   flushList();
@@ -119,7 +127,7 @@ export async function renderTemplate(blocks, campaignId = null) {
 
       case "content": {
         const imageBlock = block.imageUrl
-          ? `<img src="${block.imageUrl}" alt="${block.title}" width="504" style="width:100%;max-width:504px;height:auto;border-radius:8px;display:block;margin:20px auto 0 auto;">`
+          ? `<tr><td style="padding: 0 16px 16px 16px; background-color: #ffffff;"><img src="${block.imageUrl}" alt="${block.title}" width="504" style="width:100%;max-width:504px;height:auto;border-radius:8px;display:block;"></td></tr>`
           : "";
         sections += inject(readPartial("content.html"), {
           TITULO_CONTENT: block.title,
@@ -136,12 +144,16 @@ export async function renderTemplate(blocks, campaignId = null) {
         });
         break;
 
-      case "button":
-        sections += await renderButtonSection(block, campaignId);
-        break;
-
       default:
         console.warn(`[renderTemplate] Tipo de bloco desconhecido: ${block.type}`);
+    }
+
+    if (block.buttonEnabled && block.buttonUrl) {
+      const sectionBgMap = {
+        highlight: "#0D0D0D",
+        fique_de_olho: "#eae9e7",
+      };
+      sections += await renderButtonSection(block, campaignId, sectionBgMap[block.type]);
     }
   }
 

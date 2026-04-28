@@ -45,12 +45,6 @@ const SECTION_TYPES = [
     placeholderTitle: "Ex: Evento importante chegando",
     placeholderText: "Ex: Na próxima semana teremos um webinar exclusivo...",
   },
-  {
-    value: "button",
-    label: "Botão",
-    description: "Link de ação com estilo grande ou link simples",
-    hasImage: false,
-  },
 ];
 
 function createBlock(type = "intro") {
@@ -60,8 +54,10 @@ function createBlock(type = "intro") {
     title: "",
     text: "",
     imageUrl: "",
+    buttonEnabled: false,
     buttonStyle: "large",
-    url: "",
+    buttonText: "",
+    buttonUrl: "",
   };
 }
 
@@ -327,62 +323,81 @@ export default function Home() {
                   {/* Descrição */}
                   <p className="text-xs text-[#7a7773]">{meta.description}</p>
 
-                  {block.type === "button" ? (
-                    <ButtonSectionFields
-                      section={block}
-                      onChange={(field, value) => updateBlock(block.id, field, value)}
+                  <>
+                    {/* Campo título */}
+                    <input
+                      type="text"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-[#0d0d0d] focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
+                      placeholder={meta.placeholderTitle}
+                      value={block.title}
+                      onChange={(e) =>
+                        updateBlock(block.id, "title", e.target.value)
+                      }
                     />
-                  ) : (
-                    <>
-                      {/* Campo título */}
-                      <input
-                        type="text"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-[#0d0d0d] focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
-                        placeholder={meta.placeholderTitle}
-                        value={block.title}
-                        onChange={(e) =>
-                          updateBlock(block.id, "title", e.target.value)
-                        }
-                      />
 
-                      {/* Campo texto */}
-                      <textarea
-                        className="w-full h-24 border border-gray-300 rounded-lg p-3 text-sm text-[#0d0d0d] resize-none focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
-                        placeholder={meta.placeholderText}
-                        value={block.text}
-                        onChange={(e) =>
-                          updateBlock(block.id, "text", e.target.value)
-                        }
-                      />
+                    {/* Campo texto */}
+                    <textarea
+                      className="w-full h-24 border border-gray-300 rounded-lg p-3 text-sm text-[#0d0d0d] resize-none focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
+                      placeholder={meta.placeholderText}
+                      value={block.text}
+                      onChange={(e) =>
+                        updateBlock(block.id, "text", e.target.value)
+                      }
+                    />
+                    <p className="text-xs text-gray-400">
+                      Para inserir links inline use:{" "}
+                      <code className="bg-gray-100 px-1 rounded">[texto do link](https://url.com)</code>
+                    </p>
 
-                      {/* Campo imagem — só aparece no Hero */}
-                      {meta.hasImage && (
-                        <div className="flex flex-col gap-2">
-                          <label className="text-xs font-semibold text-[#0d0d0d]">
-                            URL da imagem (S3)
-                          </label>
-                          <input
-                            type="url"
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-[#0d0d0d] focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
-                            placeholder="https://seu-bucket.s3.amazonaws.com/imagem.jpg"
-                            value={block.imageUrl}
-                            onChange={(e) =>
-                              updateBlock(block.id, "imageUrl", e.target.value)
-                            }
+                    {/* Campo imagem — só aparece no Hero e Content */}
+                    {meta.hasImage && (
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs font-semibold text-[#0d0d0d]">
+                          URL da imagem (S3)
+                        </label>
+                        <input
+                          type="url"
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-[#0d0d0d] focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
+                          placeholder="https://seu-bucket.s3.amazonaws.com/imagem.jpg"
+                          value={block.imageUrl}
+                          onChange={(e) =>
+                            updateBlock(block.id, "imageUrl", e.target.value)
+                          }
+                        />
+                        {block.imageUrl && (
+                          <img
+                            src={block.imageUrl}
+                            alt="Preview"
+                            className="w-full rounded-lg border border-gray-200 object-cover"
+                            style={{ maxHeight: "100px" }}
+                            onError={(e) => (e.target.style.display = "none")}
                           />
-                          {block.imageUrl && (
-                            <img
-                              src={block.imageUrl}
-                              alt="Preview"
-                              className="w-full rounded-lg border border-gray-200 object-cover"
-                              style={{ maxHeight: "100px" }}
-                              onError={(e) => (e.target.style.display = "none")}
-                            />
-                          )}
-                        </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Toggle botão opcional */}
+                    <div className="border-t border-gray-100 pt-3 flex flex-col gap-3">
+                      <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          className="w-4 h-4 accent-[#ff4000] cursor-pointer"
+                          checked={block.buttonEnabled ?? false}
+                          onChange={(e) =>
+                            updateBlock(block.id, "buttonEnabled", e.target.checked)
+                          }
+                        />
+                        <span className="text-xs font-semibold text-[#0d0d0d]">Adicionar botão</span>
+                      </label>
+
+                      {block.buttonEnabled && (
+                        <ButtonSectionFields
+                          section={block}
+                          onChange={(field, value) => updateBlock(block.id, field, value)}
+                        />
                       )}
-                    </>
-                  )}
+                    </div>
+                  </>
                 </div>
               );
             })}

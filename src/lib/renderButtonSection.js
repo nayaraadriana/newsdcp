@@ -1,24 +1,25 @@
 import { registerTrackedLink } from './db';
 
 /**
- * Gera o HTML da seção de botão e registra o link para tracking.
+ * Gera o HTML do botão e registra o link para tracking.
  *
- * @param {{ buttonStyle: 'large' | 'link', text: string, url: string }} section
- * @param {string} campaignId
- * @returns {Promise<string>} HTML da seção
+ * @param {{ buttonStyle: 'large' | 'link', buttonText?: string, buttonUrl?: string }} section
+ * @param {string|null} campaignId
+ * @param {string} [sectionBg='#ffffff'] cor de fundo da seção pai
+ * @returns {Promise<string>} HTML do botão (rows de tabela)
  */
-export async function renderButtonSection(section, campaignId) {
+export async function renderButtonSection(section, campaignId, sectionBg = '#ffffff') {
+  const label = section.buttonText ?? section.text ?? '';
+  const href = section.buttonUrl ?? section.url ?? '';
+
   const trackUrl = campaignId
-    ? await registerTrackedLink(section.url, section.text, campaignId)
-    : section.url;
+    ? await registerTrackedLink(href, label, campaignId)
+    : href;
 
   if (section.buttonStyle === 'large') {
     return `
-<!-- ============================================================ -->
-<!--  BUTTON — Botão grande centralizado                         -->
-<!-- ============================================================ -->
 <tr>
-  <td style="padding: 16px; background-color: #ffffff; text-align: center;">
+  <td style="padding: 16px; background-color: ${sectionBg}; text-align: center;">
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto;">
       <tr>
         <td style="
@@ -34,7 +35,7 @@ export async function renderButtonSection(section, campaignId) {
             color: #ffffff;
             text-decoration: none;
             display: inline-block;
-          ">${section.text}</a>
+          ">${label}</a>
         </td>
       </tr>
     </table>
@@ -43,11 +44,8 @@ export async function renderButtonSection(section, campaignId) {
   }
 
   return `
-<!-- ============================================================ -->
-<!--  BUTTON — Botão link com seta                               -->
-<!-- ============================================================ -->
 <tr>
-  <td style="padding: 12px 16px; background-color: #ffffff; text-align: center;">
+  <td style="padding: 12px 16px; background-color: ${sectionBg}; text-align: center;">
     <a href="${trackUrl}" target="_blank" style="
       font-family: 'Hotmart Sans', sans-serif;
       font-size: 14px;
@@ -55,7 +53,7 @@ export async function renderButtonSection(section, campaignId) {
       line-height: 1.5;
       color: #ff4000;
       text-decoration: underline;
-    ">${section.text} →</a>
+    ">${label} →</a>
   </td>
 </tr>`;
 }
