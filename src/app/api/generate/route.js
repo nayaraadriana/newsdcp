@@ -38,7 +38,7 @@ function injectTracking(html, campaignId, recipientId, headerImageUrl) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { blocks, tracking, headerImageUrl, surveyUrl } = body;
+    const { blocks, tracking, headerImageUrl, surveyUrl, signaturePhotoUrl } = body;
 
     if (!blocks || blocks.length === 0) {
       return NextResponse.json(
@@ -72,7 +72,7 @@ export async function POST(request) {
       await addRecipient(recipientId, campaignId, "", "");
 
       const html = injectTracking(
-        await renderTemplate(blocks, campaignId, headerImageUrl, surveyUrl),
+        await renderTemplate(blocks, campaignId, headerImageUrl, surveyUrl, signaturePhotoUrl),
         campaignId,
         recipientId,
         headerImageUrl
@@ -81,7 +81,7 @@ export async function POST(request) {
       return NextResponse.json({ html, campaignId, recipientId });
     }
 
-    const html = await renderTemplate(blocks, null, headerImageUrl, surveyUrl);
+    const html = await renderTemplate(blocks, null, headerImageUrl, surveyUrl, signaturePhotoUrl);
     return NextResponse.json({ html });
   } catch (error) {
     console.error("[generate] Erro:", error);

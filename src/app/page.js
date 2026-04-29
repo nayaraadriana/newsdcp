@@ -72,6 +72,7 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
 
   const [headerImageUrl, setHeaderImageUrl] = useState("");
+  const [signaturePhotoUrl, setSignaturePhotoUrl] = useState("");
   const [surveyUrl, setSurveyUrl] = useState("");
 
   const [trackingEnabled, setTrackingEnabled] = useState(false);
@@ -131,6 +132,7 @@ export default function Home() {
     try {
       const body = { blocks };
       if (headerImageUrl.trim()) body.headerImageUrl = headerImageUrl.trim();
+      if (signaturePhotoUrl.trim()) body.signaturePhotoUrl = signaturePhotoUrl.trim();
       if (surveyUrl.trim()) body.surveyUrl = surveyUrl.trim();
       if (trackingEnabled) body.tracking = tracking;
 
@@ -282,6 +284,28 @@ export default function Home() {
                       alt="Preview do header"
                       className="w-full rounded-lg border border-gray-200 object-cover"
                       style={{ maxHeight: "80px" }}
+                      onError={(e) => (e.target.style.display = "none")}
+                    />
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2 border-t border-gray-100 pt-4">
+                  <label className="text-xs font-semibold text-[#0d0d0d]">Foto de Assinatura (Rodapé)</label>
+                  <p className="text-xs text-[#7a7773]">
+                    Deixe em branco para usar a foto padrão da assinatura DCP.
+                  </p>
+                  <input
+                    type="url"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-[#0d0d0d] focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
+                    placeholder="https://seu-bucket.s3.amazonaws.com/foto.png"
+                    value={signaturePhotoUrl}
+                    onChange={(e) => setSignaturePhotoUrl(e.target.value)}
+                  />
+                  {signaturePhotoUrl && (
+                    <img
+                      src={signaturePhotoUrl}
+                      alt="Preview da foto de assinatura"
+                      className="w-16 h-16 rounded-full border border-gray-200 object-cover"
                       onError={(e) => (e.target.style.display = "none")}
                     />
                   )}

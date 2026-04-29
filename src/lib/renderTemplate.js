@@ -76,8 +76,9 @@ const HIGHLIGHTS_BANNER = `
  */
 const DEFAULT_HEADER_IMAGE = "https://newsletterdcp.s3.us-east-2.amazonaws.com/template-resources/header_newsletter.jpg";
 const DEFAULT_SURVEY_URL = "https://forms.gle/Ae3pv5jWgzaAtCt28";
+const DEFAULT_SIGNATURE_PHOTO = "https://newsletterdcp.s3.us-east-2.amazonaws.com/template-resources/assinatura_DCP.png";
 
-export async function renderTemplate(blocks, campaignId = null, headerImageUrl = null, surveyUrl = null) {
+export async function renderTemplate(blocks, campaignId = null, headerImageUrl = null, surveyUrl = null, signaturePhotoUrl = null) {
   const wrapper = fs.readFileSync(
     path.join(TEMPLATES_DIR, "newsletter.html"),
     "utf-8"
@@ -164,6 +165,7 @@ export async function renderTemplate(blocks, campaignId = null, headerImageUrl =
 
   sections += inject(readPartial("footer.html"), {
     SURVEY_URL: surveyUrl || DEFAULT_SURVEY_URL,
+    SIGNATURE_PHOTO_URL: signaturePhotoUrl || DEFAULT_SIGNATURE_PHOTO,
   });
 
   return wrapper.replace("{{SECTIONS}}", sections);
