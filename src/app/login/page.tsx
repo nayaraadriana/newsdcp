@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "@/infrastructure/auth/better-auth.client";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/";
@@ -45,91 +45,91 @@ export default function LoginPage() {
   const isLoading = isLoadingEmail || isLoadingGoogle;
 
   return (
+    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 flex flex-col gap-5">
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleEmailLogin} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-semibold text-[#0d0d0d]">E-mail</label>
+          <input
+            type="email"
+            required
+            autoComplete="email"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-[#0d0d0d] focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
+            placeholder="seu@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-semibold text-[#0d0d0d]">Senha</label>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              required
+              autoComplete="current-password"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 pr-10 text-sm text-[#0d0d0d] focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
+              placeholder="Mínimo 8 caracteres"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#0d0d0d] transition-colors text-xs"
+              tabIndex={-1}
+            >
+              {showPassword ? "Ocultar" : "Mostrar"}
+            </button>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full bg-[#ff4000] hover:bg-[#e63900] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg transition-colors text-sm mt-1"
+        >
+          {isLoadingEmail ? "Entrando..." : "Entrar"}
+        </button>
+      </form>
+
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-px bg-gray-200" />
+        <span className="text-xs text-[#7a7773]">ou</span>
+        <div className="flex-1 h-px bg-gray-200" />
+      </div>
+
+      <button
+        onClick={handleGoogleLogin}
+        disabled={isLoading}
+        className="w-full flex items-center justify-center gap-3 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed bg-white text-[#0d0d0d] font-medium py-2.5 rounded-lg transition-colors text-sm"
+      >
+        <GoogleIcon />
+        Entrar com Google
+      </button>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
     <div className="min-h-screen bg-[#f5f3ef] flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-[#0d0d0d]">Gerador de Newsletter</h1>
           <p className="text-sm text-[#7a7773] mt-1">DCP — Hotmart</p>
         </div>
-
-        {/* Card */}
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 flex flex-col gap-5">
-
-          {/* Erro */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
-              {error}
-            </div>
-          )}
-
-          {/* Formulário e-mail/senha */}
-          <form onSubmit={handleEmailLogin} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-[#0d0d0d]">E-mail</label>
-              <input
-                type="email"
-                required
-                autoComplete="email"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-[#0d0d0d] focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
-                placeholder="seu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-[#0d0d0d]">Senha</label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  required
-                  autoComplete="current-password"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 pr-10 text-sm text-[#0d0d0d] focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
-                  placeholder="Mínimo 8 caracteres"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#0d0d0d] transition-colors text-xs"
-                  tabIndex={-1}
-                >
-                  {showPassword ? "Ocultar" : "Mostrar"}
-                </button>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-[#ff4000] hover:bg-[#e63900] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg transition-colors text-sm mt-1"
-            >
-              {isLoadingEmail ? "Entrando..." : "Entrar"}
-            </button>
-          </form>
-
-          {/* Divisor */}
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-xs text-[#7a7773]">ou</span>
-            <div className="flex-1 h-px bg-gray-200" />
-          </div>
-
-          {/* Botão Google */}
-          <button
-            onClick={handleGoogleLogin}
-            disabled={isLoading}
-            className="w-full flex items-center justify-center gap-3 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed bg-white text-[#0d0d0d] font-medium py-2.5 rounded-lg transition-colors text-sm"
-          >
-            <GoogleIcon />
-            Entrar com Google
-          </button>
-        </div>
+        <Suspense>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
   );
