@@ -28,8 +28,7 @@ export const auth = betterAuth({
   },
 
   emailAndPassword: {
-    enabled: true,
-    minPasswordLength: 8,
+    enabled: false,
   },
 
   ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
