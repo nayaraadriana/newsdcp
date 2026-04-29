@@ -7,17 +7,12 @@ const BASE_URL = (process.env.NEXT_PUBLIC_APP_URL || "").replace(/\/$/, "");
 const FALLBACK_HEADER_URL = "https://newsletterdcp.s3.us-east-2.amazonaws.com/template-resources/header_newsletter.jpg";
 
 function injectTracking(html, campaignId, recipientId, headerImageUrl) {
-  // Substitui o src do header pela URL de tracking (registra abertura)
-  const openUrl = `${BASE_URL}/api/track/open/${campaignId}/${recipientId}`;
   const resolvedHeaderUrl = headerImageUrl || process.env.HEADER_IMAGE_URL || FALLBACK_HEADER_URL;
+  const openUrl = `${BASE_URL}/api/track/open/${campaignId}/${recipientId}?img=${encodeURIComponent(resolvedHeaderUrl)}`;
 
   let tracked = html;
-  if (resolvedHeaderUrl && html.includes(resolvedHeaderUrl)) {
+  if (html.includes(resolvedHeaderUrl)) {
     tracked = html.replace(resolvedHeaderUrl, openUrl);
-  } else {
-    // Fallback: se não encontrar a imagem para substituir, injeta um pixel invisível
-    const pixel = `<img src="${openUrl}" width="1" height="1" style="display:none;" alt="" />`;
-    tracked = html.replace('</body>', `${pixel}\n</body>`);
   }
 
   // Envolve links externos com redirect de tracking (ignora URLs internas já rastreadas)
