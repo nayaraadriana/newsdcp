@@ -4,14 +4,14 @@ const sql = neon(process.env.DATABASE_URL!);
 
 // ─── Campanhas ──────────────────────────────────────────────────
 
-export async function createCampaign(id: string, name: string, subject: string) {
+export async function createCampaign(id: string, name: string, subject: string, userId: string) {
   await sql`
-    INSERT INTO campaigns (id, name, subject)
-    VALUES (${id}, ${name}, ${subject})
+    INSERT INTO campaigns (id, name, subject, created_by)
+    VALUES (${id}, ${name}, ${subject}, ${userId})
   `;
 }
 
-export async function getCampaigns() {
+export async function getCampaigns(userId: string) {
   const rows = await sql`
     SELECT
       c.*,
@@ -22,15 +22,16 @@ export async function getCampaigns() {
     LEFT JOIN recipients r ON r.campaign_id = c.id
     LEFT JOIN opens      o ON o.campaign_id = c.id
     LEFT JOIN clicks     k ON k.campaign_id = c.id
+    WHERE c.created_by = ${userId}
     GROUP BY c.id
     ORDER BY c.created_at DESC
   `;
   return rows;
 }
 
-export async function getCampaignStats(campaignId: string) {
+export async function getCampaignStats(campaignId: string, userId: string) {
   const campaign = await sql`
-    SELECT * FROM campaigns WHERE id = ${campaignId}
+    SELECT * FROM campaigns WHERE id = ${campaignId} AND created_by = ${userId}
   `;
 
   const totalSentRows = await sql`

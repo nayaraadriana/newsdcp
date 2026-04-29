@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCampaignStats } from '@/lib/db';
+import { withAuth } from '@/infrastructure/middlewares/auth.middleware';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ campaignId: string }> }
-) {
+export const GET = withAuth(async (req: NextRequest, { user }) => {
   try {
-    const { campaignId } = await params;
-    const stats = await getCampaignStats(campaignId);
+    const campaignId = req.nextUrl.pathname.split('/').at(-2)!;
+    const stats = await getCampaignStats(campaignId, user.id);
 
     if (!stats.campaign) {
       return NextResponse.json({ error: 'Campanha não encontrada.' }, { status: 404 });
@@ -28,4 +26,4 @@ export async function GET(
     console.error('[campaigns/stats] Erro:', error);
     return NextResponse.json({ error: 'Erro ao buscar estatísticas.' }, { status: 500 });
   }
-}
+});

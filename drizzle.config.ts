@@ -10,5 +10,5 @@ export default {
   dbCredentials: {
     url: process.env.DATABASE_URL!,
   },
-  tablesFilter: ["user", "session", "account", "verification"],
+  tablesFilter: ["user", "session", "account", "verification", "campaigns"],
 } satisfies Config;

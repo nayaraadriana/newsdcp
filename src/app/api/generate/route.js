@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { renderTemplate } from "@/lib/renderTemplate";
 import { createCampaign, addRecipient } from "@/lib/db";
+import { auth } from "@/infrastructure/auth/better-auth.server";
 
 const BASE_URL = (process.env.NEXT_PUBLIC_APP_URL || "").replace(/\/$/, "");
 const FALLBACK_HEADER_URL = "https://newsletterdcp.s3.us-east-2.amazonaws.com/template-resources/header_newsletter.jpg";
@@ -37,6 +38,12 @@ function injectTracking(html, campaignId, recipientId, headerImageUrl) {
 
 export async function POST(request) {
   try {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session?.user) {
+      return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+    }
+    const userId = session.user.id;
+
     const body = await request.json();
     const { blocks, tracking, headerImageUrl, surveyUrl, signaturePhotoUrl } = body;
 
@@ -68,7 +75,7 @@ export async function POST(request) {
       const campaignId = crypto.randomUUID();
       const recipientId = crypto.randomUUID();
 
-      await createCampaign(campaignId, campaignName, subject);
+      await createCampaign(campaignId, campaignName, subject, userId);
       await addRecipient(recipientId, campaignId, "", "");
 
       const html = injectTracking(
