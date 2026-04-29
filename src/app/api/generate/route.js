@@ -4,15 +4,15 @@ import { createCampaign, addRecipient } from "@/lib/db";
 
 const BASE_URL = (process.env.NEXT_PUBLIC_APP_URL || "").replace(/\/$/, "");
 const FALLBACK_HEADER_URL = "https://newsletterdcp.s3.us-east-2.amazonaws.com/template-resources/header_newsletter.jpg";
-const HEADER_S3_URL = process.env.HEADER_IMAGE_URL || FALLBACK_HEADER_URL;
 
-function injectTracking(html, campaignId, recipientId) {
+function injectTracking(html, campaignId, recipientId, headerImageUrl) {
   // Substitui o src do header pela URL de tracking (registra abertura)
   const openUrl = `${BASE_URL}/api/track/open/${campaignId}/${recipientId}`;
-  
+  const resolvedHeaderUrl = headerImageUrl || process.env.HEADER_IMAGE_URL || FALLBACK_HEADER_URL;
+
   let tracked = html;
-  if (HEADER_S3_URL && html.includes(HEADER_S3_URL)) {
-    tracked = html.replace(HEADER_S3_URL, openUrl);
+  if (resolvedHeaderUrl && html.includes(resolvedHeaderUrl)) {
+    tracked = html.replace(resolvedHeaderUrl, openUrl);
   } else {
     // Fallback: se não encontrar a imagem para substituir, injeta um pixel invisível
     const pixel = `<img src="${openUrl}" width="1" height="1" style="display:none;" alt="" />`;
@@ -38,7 +38,7 @@ function injectTracking(html, campaignId, recipientId) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { blocks, tracking } = body;
+    const { blocks, tracking, headerImageUrl, surveyUrl } = body;
 
     if (!blocks || blocks.length === 0) {
       return NextResponse.json(
@@ -56,11 +56,11 @@ export async function POST(request) {
     }
 
     if (tracking) {
-      const { campaignName, subject, recipientEmail, recipientName } = tracking;
+      const { campaignName, subject } = tracking;
 
-      if (!campaignName || !subject || !recipientEmail) {
+      if (!campaignName || !subject) {
         return NextResponse.json(
-          { error: "Para ativar o tracking, informe nome da campanha, assunto e e-mail do destinatário." },
+          { error: "Para ativar o tracking, informe nome da campanha e assunto." },
           { status: 400 }
         );
       }
@@ -69,18 +69,19 @@ export async function POST(request) {
       const recipientId = crypto.randomUUID();
 
       await createCampaign(campaignId, campaignName, subject);
-      await addRecipient(recipientId, campaignId, recipientEmail, recipientName ?? "");
+      await addRecipient(recipientId, campaignId, "", "");
 
       const html = injectTracking(
-        await renderTemplate(blocks, campaignId),
+        await renderTemplate(blocks, campaignId, headerImageUrl, surveyUrl),
         campaignId,
-        recipientId
+        recipientId,
+        headerImageUrl
       );
 
       return NextResponse.json({ html, campaignId, recipientId });
     }
 
-    const html = await renderTemplate(blocks, null);
+    const html = await renderTemplate(blocks, null, headerImageUrl, surveyUrl);
     return NextResponse.json({ html });
   } catch (error) {
     console.error("[generate] Erro:", error);

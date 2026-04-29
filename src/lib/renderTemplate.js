@@ -74,7 +74,10 @@ const HIGHLIGHTS_BANNER = `
  * @param {string | null} campaignId
  * @returns {Promise<string>} HTML completo da newsletter
  */
-export async function renderTemplate(blocks, campaignId = null) {
+const DEFAULT_HEADER_IMAGE = "https://newsletterdcp.s3.us-east-2.amazonaws.com/template-resources/header_newsletter.jpg";
+const DEFAULT_SURVEY_URL = "https://forms.gle/Ae3pv5jWgzaAtCt28";
+
+export async function renderTemplate(blocks, campaignId = null, headerImageUrl = null, surveyUrl = null) {
   const wrapper = fs.readFileSync(
     path.join(TEMPLATES_DIR, "newsletter.html"),
     "utf-8"
@@ -89,8 +92,10 @@ export async function renderTemplate(blocks, campaignId = null) {
   let highlightBannerInserted = false;
   let highlightIndex = 0;
 
+  const resolvedHeaderUrl = headerImageUrl || DEFAULT_HEADER_IMAGE;
+
   // Header e Footer são sempre incluídos
-  sections += readPartial("header.html");
+  sections += inject(readPartial("header.html"), { HEADER_IMAGE_URL: resolvedHeaderUrl });
 
   for (const block of blocks) {
     switch (block.type) {
@@ -157,7 +162,9 @@ export async function renderTemplate(blocks, campaignId = null) {
     }
   }
 
-  sections += readPartial("footer.html");
+  sections += inject(readPartial("footer.html"), {
+    SURVEY_URL: surveyUrl || DEFAULT_SURVEY_URL,
+  });
 
   return wrapper.replace("{{SECTIONS}}", sections);
 }

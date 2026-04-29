@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ButtonSectionFields from "./components/ButtonSectionFields";
+import { signOut } from "@/infrastructure/auth/better-auth.client";
 
 const SECTION_TYPES = [
   {
@@ -62,18 +64,20 @@ function createBlock(type = "intro") {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [blocks, setBlocks] = useState([createBlock("intro")]);
   const [previewHtml, setPreviewHtml] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
+  const [headerImageUrl, setHeaderImageUrl] = useState("");
+  const [surveyUrl, setSurveyUrl] = useState("");
+
   const [trackingEnabled, setTrackingEnabled] = useState(false);
   const [tracking, setTracking] = useState({
     campaignName: "",
     subject: "",
-    recipientEmail: "",
-    recipientName: "",
   });
   const [campaignId, setCampaignId] = useState("");
 
@@ -126,6 +130,8 @@ export default function Home() {
 
     try {
       const body = { blocks };
+      if (headerImageUrl.trim()) body.headerImageUrl = headerImageUrl.trim();
+      if (surveyUrl.trim()) body.surveyUrl = surveyUrl.trim();
       if (trackingEnabled) body.tracking = tracking;
 
       const response = await fetch("/api/generate", {
@@ -181,9 +187,17 @@ export default function Home() {
           <h1 className="text-lg font-bold text-[#0d0d0d]">Gerador de Newsletter</h1>
           <p className="text-sm text-[#7a7773]">DCP — Hotmart</p>
         </div>
-        <Link href="/stats" className="text-sm text-[#ff4000] hover:underline font-medium">
-          Monitoramento →
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/stats" className="text-sm text-[#ff4000] hover:underline font-medium">
+            Monitoramento →
+          </Link>
+          <button
+            onClick={() => signOut({ fetchOptions: { onSuccess: () => router.push("/login") } })}
+            className="text-sm text-[#7a7773] hover:text-[#0d0d0d] transition-colors"
+          >
+            Sair
+          </button>
+        </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
@@ -214,7 +228,7 @@ export default function Home() {
               {trackingEnabled && (
                 <div className="px-4 pb-4 flex flex-col gap-3 border-t border-gray-100 pt-3">
                   <p className="text-xs text-[#7a7773]">
-                    Preencha para registrar aberturas e cliques desta campanha.
+                    Preencha para registrar aberturas e cliques desta campanha. O rastreamento é por campanha, não por destinatário.
                   </p>
                   <div className="flex flex-col gap-1">
                     <label className="text-xs font-semibold text-[#0d0d0d]">
@@ -240,32 +254,53 @@ export default function Home() {
                       onChange={(e) => updateTracking("subject", e.target.value)}
                     />
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-semibold text-[#0d0d0d]">
-                      E-mail do destinatário *
-                    </label>
-                    <input
-                      type="email"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
-                      placeholder="Ex: pessoa@hotmart.com"
-                      value={tracking.recipientEmail}
-                      onChange={(e) => updateTracking("recipientEmail", e.target.value)}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-semibold text-[#0d0d0d]">
-                      Nome do destinatário
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
-                      placeholder="Ex: João Silva"
-                      value={tracking.recipientName}
-                      onChange={(e) => updateTracking("recipientName", e.target.value)}
-                    />
-                  </div>
                 </div>
               )}
+            </div>
+
+            {/* Configurações do Template */}
+            <div className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-100">
+                <span className="text-sm font-semibold text-[#0d0d0d]">Configurações do Template</span>
+              </div>
+              <div className="px-4 py-3 flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-semibold text-[#0d0d0d]">Imagem do Header</label>
+                  <p className="text-xs text-[#7a7773]">
+                    Deixe em branco para usar a imagem padrão da newsletter DCP.
+                  </p>
+                  <input
+                    type="url"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-[#0d0d0d] focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
+                    placeholder="https://seu-bucket.s3.amazonaws.com/header.jpg"
+                    value={headerImageUrl}
+                    onChange={(e) => setHeaderImageUrl(e.target.value)}
+                  />
+                  {headerImageUrl && (
+                    <img
+                      src={headerImageUrl}
+                      alt="Preview do header"
+                      className="w-full rounded-lg border border-gray-200 object-cover"
+                      style={{ maxHeight: "80px" }}
+                      onError={(e) => (e.target.style.display = "none")}
+                    />
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2 border-t border-gray-100 pt-4">
+                  <label className="text-xs font-semibold text-[#0d0d0d]">Link da Pesquisa de Satisfação(Rodapé)</label>
+                  <p className="text-xs text-[#7a7773]">
+                    Deixe em branco para usar o link padrão do formulário DCP.
+                  </p>
+                  <input
+                    type="url"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-[#0d0d0d] focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
+                    placeholder="https://forms.gle/sua-pesquisa"
+                    value={surveyUrl}
+                    onChange={(e) => setSurveyUrl(e.target.value)}
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Blocos de conteúdo */}
