@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { registerOpen } from '@/lib/db';
 
 //export const runtime = 'edge';
@@ -19,24 +19,5 @@ export async function GET(
     const imgParam = req.nextUrl.searchParams.get('img');
     const imageUrl = imgParam ? decodeURIComponent(imgParam) : (process.env.HEADER_IMAGE_URL || FALLBACK_HEADER_URL);
 
-    const imageResponse = await fetch(imageUrl, {
-        cache: 'no-store',
-    });
-
-    if (!imageResponse.ok) {
-        return new Response('Image not found', { status: 404 });
-    }
-
-    const imageBuffer = await imageResponse.arrayBuffer();
-    const contentType = imageResponse.headers.get('content-type') ?? 'image/png';
-
-    return new Response(imageBuffer, {
-        status: 200,
-        headers: {
-            'Content-Type': contentType,
-            'Cache-Control': 'no-store, no-cache, must-revalidate, private',
-            'Pragma': 'no-cache',
-            'Expires': '0',
-        },
-    });
+    return NextResponse.redirect(imageUrl, 302);
 }
