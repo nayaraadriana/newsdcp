@@ -12,9 +12,7 @@ export async function renderButtonSection(section, campaignId, sectionBg = '#fff
   const label = section.buttonText ?? section.text ?? '';
   const href = section.buttonUrl ?? section.url ?? '';
 
-  const trackUrl = campaignId
-    ? await registerTrackedLink(href, label, campaignId)
-    : href;
+  const trackUrl = href;
 
   if (section.buttonStyle === 'large') {
     return `

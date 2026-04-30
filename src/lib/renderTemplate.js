@@ -94,8 +94,9 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
 
   // Injeta o header de imagem full-width quando uma URL for fornecida
   if (headerImageUrl?.trim()) {
+    const finalHeaderImageUrl = headerImageUrl.trim();
     sections += inject(readPartial("header.html"), {
-      HEADER_IMAGE_URL: headerImageUrl.trim(),
+      HEADER_IMAGE_URL: finalHeaderImageUrl,
     });
   }
 

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { auth } from "@/infrastructure/auth/better-auth.server";
 
-const PUBLIC_PATHS = ["/login", "/api/auth"];
+const PUBLIC_PATHS = ["/login", "/api/auth", "/api/track"];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
