@@ -77,7 +77,7 @@ const HIGHLIGHTS_BANNER = `
 const DEFAULT_SURVEY_URL = "https://forms.gle/Ae3pv5jWgzaAtCt28";
 const DEFAULT_SIGNATURE_PHOTO = "https://newsletterdcp.s3.us-east-2.amazonaws.com/template-resources/assinatura_DCP.png";
 
-export async function renderTemplate(blocks, campaignId = null, surveyUrl = null, signaturePhotoUrl = null, headerImageUrl = null, recipientId = null) {
+export async function renderTemplate(blocks, campaignId = null, surveyUrl = null, signaturePhotoUrl = null, headerImageUrl = null, recipientId = null, baseUrl = "") {
   const wrapper = fs.readFileSync(
     path.join(TEMPLATES_DIR, "newsletter.html"),
     "utf-8"
@@ -164,9 +164,8 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
     }
   }
 
-  const BASE_URL = (process.env.NEXT_PUBLIC_APP_URL || "").replace(/\/$/, "");
   const trackingPixel = (campaignId && recipientId)
-    ? `<img src="${BASE_URL}/api/track/open/${campaignId}/${recipientId}" width="1" height="1" style="display:block;width:1px;height:1px;border:0;" alt="">`
+    ? `<img src="${baseUrl}/api/track/open/${campaignId}/${recipientId}" width="1" height="1" style="display:block;width:1px;height:1px;border:0;" alt="">`
     : "";
 
   sections += inject(readPartial("footer.html"), {

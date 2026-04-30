@@ -3,9 +3,7 @@ import { renderTemplate } from "@/lib/renderTemplate";
 import { createCampaign, addRecipient } from "@/lib/db";
 import { auth } from "@/infrastructure/auth/better-auth.server";
 
-const BASE_URL = (process.env.NEXT_PUBLIC_APP_URL || "").replace(/\/$/, "");
-
-function injectTracking(html, campaignId, recipientId) {
+function injectTracking(html, campaignId, recipientId, baseUrl) {
   let tracked = html;
 
   // Envolve links externos com redirect de tracking (ignora URLs internas já rastreadas)
@@ -16,7 +14,7 @@ function injectTracking(html, campaignId, recipientId) {
       const label = content.replace(/<[^>]+>/g, "").trim();
       const encodedUrl = encodeURIComponent(originalUrl);
       const encodedLabel = encodeURIComponent(label);
-      const trackUrl = `${BASE_URL}/api/track/click/${campaignId}/${recipientId}?url=${encodedUrl}&label=${encodedLabel}`;
+      const trackUrl = `${baseUrl}/api/track/click/${campaignId}/${recipientId}?url=${encodedUrl}&label=${encodedLabel}`;
       return `<a${before}href="${trackUrl}"${after}>${content}</a>`;
     }
   );
@@ -31,6 +29,7 @@ export async function POST(request) {
       return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
     }
     const userId = session.user.id;
+    const baseUrl = new URL(request.url).origin;
 
     const body = await request.json();
     const { blocks, tracking, surveyUrl, signaturePhotoUrl, headerImageUrl } = body;
@@ -67,9 +66,10 @@ export async function POST(request) {
       await addRecipient(recipientId, campaignId, "", "");
 
       const html = injectTracking(
-        await renderTemplate(blocks, campaignId, surveyUrl, signaturePhotoUrl, headerImageUrl, recipientId),
+        await renderTemplate(blocks, campaignId, surveyUrl, signaturePhotoUrl, headerImageUrl, recipientId, baseUrl),
         campaignId,
-        recipientId
+        recipientId,
+        baseUrl
       );
 
       return NextResponse.json({ html, campaignId, recipientId });
