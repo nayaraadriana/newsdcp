@@ -4,16 +4,9 @@ import { createCampaign, addRecipient } from "@/lib/db";
 import { auth } from "@/infrastructure/auth/better-auth.server";
 
 const BASE_URL = (process.env.NEXT_PUBLIC_APP_URL || "").replace(/\/$/, "");
-const FALLBACK_HEADER_URL = "https://newsletterdcp.s3.us-east-2.amazonaws.com/template-resources/header_newsletter.jpg";
 
-function injectTracking(html, campaignId, recipientId, headerImageUrl) {
-  const resolvedHeaderUrl = headerImageUrl || process.env.HEADER_IMAGE_URL || FALLBACK_HEADER_URL;
-  const openUrl = `${BASE_URL}/api/track/open/${campaignId}/${recipientId}?img=${encodeURIComponent(resolvedHeaderUrl)}`;
-
+function injectTracking(html, campaignId, recipientId) {
   let tracked = html;
-  if (html.includes(resolvedHeaderUrl)) {
-    tracked = html.replace(resolvedHeaderUrl, openUrl);
-  }
 
   // Envolve links externos com redirect de tracking (ignora URLs internas já rastreadas)
   tracked = tracked.replace(
@@ -40,7 +33,7 @@ export async function POST(request) {
     const userId = session.user.id;
 
     const body = await request.json();
-    const { blocks, tracking, headerImageUrl, surveyUrl, signaturePhotoUrl } = body;
+    const { blocks, tracking, surveyUrl, signaturePhotoUrl, headerImageUrl } = body;
 
     if (!blocks || blocks.length === 0) {
       return NextResponse.json(
@@ -74,16 +67,15 @@ export async function POST(request) {
       await addRecipient(recipientId, campaignId, "", "");
 
       const html = injectTracking(
-        await renderTemplate(blocks, campaignId, headerImageUrl, surveyUrl, signaturePhotoUrl),
+        await renderTemplate(blocks, campaignId, surveyUrl, signaturePhotoUrl, headerImageUrl, recipientId),
         campaignId,
-        recipientId,
-        headerImageUrl
+        recipientId
       );
 
       return NextResponse.json({ html, campaignId, recipientId });
     }
 
-    const html = await renderTemplate(blocks, null, headerImageUrl, surveyUrl, signaturePhotoUrl);
+    const html = await renderTemplate(blocks, null, surveyUrl, signaturePhotoUrl, headerImageUrl);
     return NextResponse.json({ html });
   } catch (error) {
     console.error("[generate] Erro:", error);

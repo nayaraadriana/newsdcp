@@ -71,8 +71,8 @@ export default function Home() {
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const [headerImageUrl, setHeaderImageUrl] = useState("");
   const [signaturePhotoUrl, setSignaturePhotoUrl] = useState("");
+  const [headerImageUrl, setHeaderImageUrl] = useState("");
   const [surveyUrl, setSurveyUrl] = useState("");
 
   const [trackingEnabled, setTrackingEnabled] = useState(false);
@@ -269,12 +269,12 @@ export default function Home() {
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-semibold text-[#0d0d0d]">Imagem do Header</label>
                   <p className="text-xs text-[#7a7773]">
-                    Deixe em branco para usar a imagem padrão da newsletter DCP.
+                    Imagem exibida no topo do e-mail, ocupando toda a largura do corpo (600px). Deixe em branco para não exibir header.
                   </p>
                   <input
                     type="url"
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-[#0d0d0d] focus:outline-none focus:ring-2 focus:ring-[#ff4000] focus:border-transparent"
-                    placeholder="https://seu-bucket.s3.amazonaws.com/header.jpg"
+                    placeholder="https://seu-bucket.s3.amazonaws.com/header.png"
                     value={headerImageUrl}
                     onChange={(e) => setHeaderImageUrl(e.target.value)}
                   />

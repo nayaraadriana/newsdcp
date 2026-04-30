@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { registerOpen } from '@/lib/db';
 
-//export const runtime = 'edge';
+export const runtime = 'edge';
 
-const FALLBACK_HEADER_URL = "https://newsletterdcp.s3.us-east-2.amazonaws.com/template-resources/header_newsletter.jpg";
+// GIF transparente 1x1 px (35 bytes)
+const PIXEL = Buffer.from(
+    'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+    'base64'
+);
 
 export async function GET(
     req: NextRequest,
@@ -13,11 +17,14 @@ export async function GET(
     const ip = req.headers.get('x-forwarded-for') ?? 'unknown';
     const userAgent = req.headers.get('user-agent') ?? '';
 
-    await registerOpen(recipientId, campaignId, ip, userAgent)
+    registerOpen(recipientId, campaignId, ip, userAgent)
         .catch((err) => console.error('[TRACK_OPEN_ERROR]', err));
 
-    const imgParam = req.nextUrl.searchParams.get('img');
-    const imageUrl = imgParam ? decodeURIComponent(imgParam) : (process.env.HEADER_IMAGE_URL || FALLBACK_HEADER_URL);
-
-    return NextResponse.redirect(imageUrl, 302);
+    return new NextResponse(PIXEL, {
+        status: 200,
+        headers: {
+            'Content-Type': 'image/gif',
+            'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+    });
 }
