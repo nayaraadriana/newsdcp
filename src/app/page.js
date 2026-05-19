@@ -27,7 +27,7 @@ const SECTION_TYPES = [
     value: "highlight",
     label: "Highlight",
     description: "Item de destaque da seção de novidades",
-    hasImage: false,
+    hasImage: true,
     placeholderTitle: "Ex: Novo painel de relatórios",
     placeholderText: "Ex: A área de Analytics ganhou um novo painel consolidado...",
   },
@@ -43,7 +43,7 @@ const SECTION_TYPES = [
     value: "fique_de_olho",
     label: "Fique de Olho",
     description: "Aviso ou novidade que merece atenção especial",
-    hasImage: false,
+    hasImage: true,
     placeholderTitle: "Ex: Evento importante chegando",
     placeholderText: "Ex: Na próxima semana teremos um webinar exclusivo...",
   },
@@ -56,10 +56,12 @@ function createBlock(type = "intro") {
     title: "",
     text: "",
     imageUrl: "",
+    imagePosition: "above",
     buttonEnabled: false,
     buttonStyle: "large",
     buttonText: "",
     buttonUrl: "",
+    dividerEnabled: false,
   };
 }
 
@@ -424,13 +426,30 @@ export default function Home() {
                           }
                         />
                         {block.imageUrl && (
-                          <img
-                            src={block.imageUrl}
-                            alt="Preview"
-                            className="w-full rounded-lg border border-gray-200 object-cover"
-                            style={{ maxHeight: "100px" }}
-                            onError={(e) => (e.target.style.display = "none")}
-                          />
+                          <>
+                            <img
+                              src={block.imageUrl}
+                              alt="Preview"
+                              className="w-full rounded-lg border border-gray-200 object-cover"
+                              style={{ maxHeight: "100px" }}
+                              onError={(e) => (e.target.style.display = "none")}
+                            />
+                            <div className="flex flex-col gap-1">
+                              <label className="text-xs font-semibold text-[#0d0d0d]">
+                                Posição da imagem
+                              </label>
+                              <select
+                                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-[#0d0d0d] focus:outline-none focus:ring-2 focus:ring-[#ff4000] bg-white"
+                                value={block.imagePosition || "above"}
+                                onChange={(e) =>
+                                  updateBlock(block.id, "imagePosition", e.target.value)
+                                }
+                              >
+                                <option value="above">Acima do conteúdo</option>
+                                <option value="below">Abaixo do conteúdo</option>
+                              </select>
+                            </div>
+                          </>
                         )}
                       </div>
                     )}
@@ -456,6 +475,26 @@ export default function Home() {
                         />
                       )}
                     </div>
+
+                    {/* Toggle linha divisória — apenas para blocos content */}
+                    {block.type === "content" && (
+                      <div className="border-t border-gray-100 pt-3">
+                        <label className="flex items-center gap-2 cursor-pointer select-none">
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 accent-[#ff4000] cursor-pointer"
+                            checked={block.dividerEnabled ?? false}
+                            onChange={(e) =>
+                              updateBlock(block.id, "dividerEnabled", e.target.checked)
+                            }
+                          />
+                          <span className="text-xs font-semibold text-[#0d0d0d]">Linha divisória</span>
+                        </label>
+                        <p className="text-xs text-[#7a7773] mt-1 ml-6">
+                          Exibe uma linha cinza ao final desta seção
+                        </p>
+                      </div>
+                    )}
                   </>
                 </div>
               );
@@ -506,7 +545,7 @@ export default function Home() {
         </aside>
 
         {/* Painel direito — Preview */}
-        <main className="flex-1 overflow-y-auto p-8 flex flex-col items-center">
+        <main className="flex-1 min-h-0 overflow-y-auto p-8 flex flex-col items-center">
           {!previewHtml && !isLoading && (
             <div className="flex flex-col items-center justify-center h-full text-center gap-3 text-[#7a7773]">
               <span className="text-5xl">✉️</span>
@@ -528,7 +567,7 @@ export default function Home() {
           )}
 
           {previewHtml && !isLoading && (
-            <div className="w-full max-w-[640px] flex flex-col gap-3">
+            <div className="w-full max-w-[640px] flex flex-col flex-1 min-h-0 gap-3">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-[#7a7773]">
                   Preview gerado com sucesso
@@ -558,8 +597,7 @@ export default function Home() {
               <iframe
                 srcDoc={previewHtml}
                 title="Preview do E-mail"
-                className="w-full rounded-xl border border-gray-200 shadow-sm bg-white"
-                style={{ height: "80vh", minHeight: "600px" }}
+                className="w-full flex-1 rounded-xl border border-gray-200 shadow-sm bg-white"
                 sandbox="allow-same-origin"
               />
             </div>

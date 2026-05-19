@@ -1,11 +1,15 @@
 <!-- ============================================================ -->
 <!--  HIGHLIGHT — Banner da seção + Item de destaque            -->
 <!--  Placeholders: {{TITULO_HIGHLIGHT}}, {{TEXTO_HIGHLIGHT}}   -->
+<!--  {{IMAGEM_HIGHLIGHT_ABOVE}} / {{IMAGEM_HIGHLIGHT_BELOW}}   -->
 <!--  Variável: {{BG_COLOR}} — alterna entre #ffffff e #f5f3ef  -->
 <!-- ============================================================ -->
 
 <!-- Banner "Highlights" — incluído apenas no primeiro highlight -->
 {{HIGHLIGHT_BANNER}}
+
+<!-- Imagem opcional do Highlight (acima do conteúdo) -->
+{{IMAGEM_HIGHLIGHT_ABOVE}}
 
 <!-- Item do highlight -->
 <tr>
@@ -17,21 +21,6 @@
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
             <tr>
                 <td style="padding-left: 0; padding-right: 0;">
-
-                    <!-- Label decorativo -->
-                    <!-- <p style="
-                        font-family: 'Hotmart Sans', sans-serif;
-                        font-size: 12px;
-                        font-weight: 700;
-                        line-height: 1.5;
-                        color: #ff4000;
-                        text-transform: uppercase;
-                        letter-spacing: 1.5px;
-                        margin: 0 0 8px 0;
-                        padding: 0;
-                    ">
-                        #highlight
-                    </p> -->
 
                     <!-- Título do Highlight -->
                     <h3 style="
@@ -64,3 +53,6 @@
         </table>
     </td>
 </tr>
+
+<!-- Imagem opcional do Highlight (abaixo do conteúdo) -->
+{{IMAGEM_HIGHLIGHT_BELOW}}

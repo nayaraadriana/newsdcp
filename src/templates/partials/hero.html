@@ -4,17 +4,8 @@
 <tr>
     <td style="padding: 16px 16px 16px 16px; background-color:#ffffff;">
 
-        <!-- Imagem Hero -->
-        <div style="text-align: center;">
-            <img class="hero-img" src="{{IMAGEM_HERO}}" alt="{{TITULO_HERO}}" width="600" style="
-                width: 100%;
-                max-width: 600px;
-                height: auto;
-                border-radius: 8px;
-                display: block;
-                margin: 0 auto 16px auto;
-            " />
-        </div>
+        <!-- Imagem Hero (acima do conteúdo) -->
+        {{IMAGEM_HERO_ABOVE}}
 
         <!-- Título Hero -->
         <h2 style="
@@ -41,6 +32,9 @@
         ">
             {{TEXTO_HERO}}
         </p>
+
+        <!-- Imagem Hero (abaixo do conteúdo) -->
+        {{IMAGEM_HERO_BELOW}}
 
     </td>
 </tr>

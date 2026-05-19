@@ -21,12 +21,12 @@ function fmtShortDate(date) {
 
 function MetricCard({ label, value, sub }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-xl px-5 py-4 flex flex-col gap-1">
-      <span className="text-xs text-[#7a7773] font-medium uppercase tracking-wide">
+    <div className="bg-[#f5f3ef] border border-gray-200 rounded-lg px-4 py-3 flex flex-col gap-0.5">
+      <span className="text-[10px] text-[#7a7773] font-medium uppercase tracking-wide">
         {label}
       </span>
-      <span className="text-2xl font-bold text-[#0d0d0d]">{value}</span>
-      {sub && <span className="text-xs text-[#7a7773]">{sub}</span>}
+      <span className="text-xl font-bold text-[#0d0d0d]">{value}</span>
+      {sub && <span className="text-[11px] text-[#7a7773]">{sub}</span>}
     </div>
   );
 }
@@ -53,6 +53,8 @@ export default function StatsPage() {
   const [copiedList, setCopiedList] = useState(false);
   const [copiedLinks, setCopiedLinks] = useState(false);
   const [error, setError] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useEffect(() => {
     fetch("/api/campaigns")
@@ -102,6 +104,31 @@ export default function StatsPage() {
     setTimeout(() => setCopiedLinks(false), 2000);
   }
 
+  async function handleDelete(campaignId) {
+    setDeletingId(campaignId);
+    setError("");
+    try {
+      const r = await fetch(`/api/campaigns/${campaignId}`, { method: "DELETE" });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error);
+      setCampaigns((prev) => prev.filter((c) => c.id !== campaignId));
+      if (selectedId === campaignId) {
+        setSelectedId(null);
+        setStats(null);
+      }
+    } catch (e) {
+      setError(e.message || "Erro ao excluir campanha.");
+    } finally {
+      setDeletingId(null);
+      setConfirmDeleteId(null);
+    }
+  }
+
+  function closePanel() {
+    setSelectedId(null);
+    setStats(null);
+  }
+
   return (
     <div className="min-h-screen bg-[#f5f3ef] flex flex-col">
 
@@ -119,173 +146,217 @@ export default function StatsPage() {
         </Link>
       </header>
 
-      <div className="flex-1 p-6 flex flex-col gap-6 max-w-6xl mx-auto w-full">
+      {error && (
+        <div className="mx-6 mt-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">
+          {error}
+        </div>
+      )}
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">
-            {error}
-          </div>
-        )}
+      {/* Layout principal: lista + painel lateral */}
+      <div className="flex-1 flex overflow-hidden">
 
-        {/* Lista de campanhas */}
-        <section className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-          <div className="px-5 py-4 flex items-center justify-between border-b border-gray-100">
-            <h2 className="text-sm font-bold text-[#0d0d0d]">Campanhas</h2>
-            <button
-              onClick={handleCopyCampaignList}
-              disabled={campaigns.length === 0}
-              className="text-xs border border-gray-300 hover:border-[#ff4000] hover:text-[#ff4000] text-[#7a7773] px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {copiedList ? "Copiado!" : "Copiar para Excel"}
-            </button>
-          </div>
-
-          {loadingList ? (
-            <div className="p-8 text-center text-sm text-[#7a7773]">Carregando...</div>
-          ) : campaigns.length === 0 ? (
-            <div className="p-8 text-center text-sm text-[#7a7773]">
-              Nenhuma campanha encontrada. Gere um e-mail com rastreamento ativado.
+        {/* Coluna da lista de campanhas */}
+        <div className={`flex-1 overflow-y-auto p-6 transition-all duration-300 ${selectedId ? "max-w-[60%]" : "max-w-full"}`}>
+          <section className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+            <div className="px-5 py-4 flex items-center justify-between border-b border-gray-100">
+              <h2 className="text-sm font-bold text-[#0d0d0d]">Campanhas</h2>
+              <button
+                onClick={handleCopyCampaignList}
+                disabled={campaigns.length === 0}
+                className="text-xs border border-gray-300 hover:border-[#ff4000] hover:text-[#ff4000] text-[#7a7773] px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {copiedList ? "Copiado!" : "Copiar para Excel"}
+              </button>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-gray-50 text-left">
-                    <th className="px-5 py-3 font-semibold text-[#0d0d0d] text-xs uppercase tracking-wide">Campanha</th>
-                    <th className="px-5 py-3 font-semibold text-[#0d0d0d] text-xs uppercase tracking-wide">Assunto</th>
-                    <th className="px-5 py-3 font-semibold text-[#0d0d0d] text-xs uppercase tracking-wide">Data</th>
-                    <th className="px-5 py-3 font-semibold text-[#0d0d0d] text-xs uppercase tracking-wide text-right">Aberturas</th>
-                    <th className="px-5 py-3 font-semibold text-[#0d0d0d] text-xs uppercase tracking-wide text-right">Cliques</th>
-                    <th className="px-5 py-3"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {campaigns.map((c) => (
-                    <tr
-                      key={c.id}
-                      className={`hover:bg-[#fff8f5] transition-colors cursor-pointer ${selectedId === c.id ? "bg-[#fff8f5] border-l-2 border-l-[#ff4000]" : ""}`}
-                      onClick={() => loadStats(c.id)}
-                    >
-                      <td className="px-5 py-3 font-medium text-[#0d0d0d]">{c.name}</td>
-                      <td className="px-5 py-3 text-[#7a7773]">{c.subject}</td>
-                      <td className="px-5 py-3 text-[#7a7773] whitespace-nowrap">{fmtShortDate(c.created_at)}</td>
-                      <td className="px-5 py-3 text-right font-medium text-[#0d0d0d]">{c.unique_opens ?? 0}</td>
-                      <td className="px-5 py-3 text-right font-medium text-[#0d0d0d]">{c.unique_clicks ?? 0}</td>
-                      <td className="px-5 py-3 text-right">
-                        <span className="text-xs text-[#ff4000] font-medium">
-                          {selectedId === c.id ? "Selecionada" : "Ver detalhes →"}
-                        </span>
-                      </td>
+
+            {loadingList ? (
+              <div className="p-8 text-center text-sm text-[#7a7773]">Carregando...</div>
+            ) : campaigns.length === 0 ? (
+              <div className="p-8 text-center text-sm text-[#7a7773]">
+                Nenhuma campanha encontrada. Gere um e-mail com rastreamento ativado.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 text-left">
+                      <th className="px-5 py-3 font-semibold text-[#0d0d0d] text-xs uppercase tracking-wide">Campanha</th>
+                      <th className="px-5 py-3 font-semibold text-[#0d0d0d] text-xs uppercase tracking-wide">Assunto</th>
+                      <th className="px-5 py-3 font-semibold text-[#0d0d0d] text-xs uppercase tracking-wide">Data</th>
+                      <th className="px-5 py-3 font-semibold text-[#0d0d0d] text-xs uppercase tracking-wide text-right">Aberturas</th>
+                      <th className="px-5 py-3 font-semibold text-[#0d0d0d] text-xs uppercase tracking-wide text-right">Cliques</th>
+                      <th className="px-5 py-3 font-semibold text-[#0d0d0d] text-xs uppercase tracking-wide text-right">Ações</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {campaigns.map((c) => (
+                      <tr
+                        key={c.id}
+                        className={`hover:bg-[#fff8f5] transition-colors cursor-pointer ${selectedId === c.id ? "bg-[#fff8f5] border-l-2 border-l-[#ff4000]" : ""}`}
+                        onClick={() => loadStats(c.id)}
+                      >
+                        <td className="px-5 py-3 font-medium text-[#0d0d0d]">{c.name}</td>
+                        <td className="px-5 py-3 text-[#7a7773]">{c.subject}</td>
+                        <td className="px-5 py-3 text-[#7a7773] whitespace-nowrap">{fmtShortDate(c.created_at)}</td>
+                        <td className="px-5 py-3 text-right font-medium text-[#0d0d0d]">{c.unique_opens ?? 0}</td>
+                        <td className="px-5 py-3 text-right font-medium text-[#0d0d0d]">{c.unique_clicks ?? 0}</td>
+                        <td className="px-5 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                          {confirmDeleteId === c.id ? (
+                            <span className="inline-flex items-center gap-2">
+                              <button
+                                onClick={() => handleDelete(c.id)}
+                                disabled={deletingId === c.id}
+                                className="text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 transition-colors disabled:opacity-50"
+                              >
+                                {deletingId === c.id ? "Excluindo..." : "Confirmar"}
+                              </button>
+                              <button
+                                onClick={() => setConfirmDeleteId(null)}
+                                className="text-xs text-[#7a7773] hover:text-[#0d0d0d] px-2 py-1 rounded border border-gray-300 transition-colors"
+                              >
+                                Cancelar
+                              </button>
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => setConfirmDeleteId(c.id)}
+                              className="text-xs text-red-500 hover:text-red-700 font-medium transition-colors"
+                              title="Excluir campanha"
+                            >
+                              Excluir
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+        </div>
 
-        {/* Detalhes da campanha selecionada */}
+        {/* Painel lateral de detalhes */}
         {selectedId && (
-          <section className="flex flex-col gap-4">
+          <aside className="w-[40%] min-w-[380px] border-l border-gray-200 bg-white overflow-y-auto shadow-lg animate-in slide-in-from-right">
             {loadingStats ? (
-              <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-sm text-[#7a7773]">
+              <div className="p-8 text-center text-sm text-[#7a7773]">
                 Carregando estatísticas...
               </div>
             ) : stats ? (
-              <>
-                {/* Cabeçalho da campanha */}
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h2 className="text-base font-bold text-[#0d0d0d]">{stats.campaign.name}</h2>
-                    <p className="text-sm text-[#7a7773]">
-                      {stats.campaign.subject} · Criada em {fmt(stats.campaign.created_at)}
+              <div className="flex flex-col">
+
+                {/* Cabeçalho do painel */}
+                <div className="sticky top-0 bg-white border-b border-gray-100 px-5 py-4 flex items-start justify-between gap-3 z-10">
+                  <div className="min-w-0">
+                    <h2 className="text-base font-bold text-[#0d0d0d] truncate">{stats.campaign.name}</h2>
+                    <p className="text-xs text-[#7a7773] mt-0.5">
+                      {stats.campaign.subject}
+                    </p>
+                    <p className="text-[11px] text-[#7a7773] mt-0.5">
+                      Criada em {fmt(stats.campaign.created_at)}
                     </p>
                   </div>
+                  <button
+                    onClick={closePanel}
+                    className="shrink-0 text-[#7a7773] hover:text-[#0d0d0d] transition-colors p-1 rounded hover:bg-gray-100"
+                    title="Fechar painel"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
                 </div>
 
                 {/* Cards de métricas */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <MetricCard
-                    label="Aberturas únicas"
-                    value={stats.uniqueOpens}
-                    sub={`${stats.openRate}% de taxa de abertura`}
-                  />
-                  <MetricCard
-                    label="Total de aberturas"
-                    value={stats.totalOpens}
-                    sub="inclui múltiplas aberturas"
-                  />
-                  <MetricCard
-                    label="Cliques únicos"
-                    value={stats.uniqueClicks}
-                    sub={`${stats.clickRate}% de taxa de clique`}
-                  />
-                  <MetricCard
-                    label="ID da campanha"
-                    value="—"
-                    sub={stats.campaign.id}
-                  />
+                <div className="px-5 py-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <MetricCard
+                      label="Aberturas únicas"
+                      value={stats.uniqueOpens}
+                      sub={`${stats.openRate}% taxa de abertura`}
+                    />
+                    <MetricCard
+                      label="Total de aberturas"
+                      value={stats.totalOpens}
+                      sub="inclui múltiplas"
+                    />
+                    <MetricCard
+                      label="Cliques únicos"
+                      value={stats.uniqueClicks}
+                      sub={`${stats.clickRate}% taxa de clique`}
+                    />
+                    <MetricCard
+                      label="ID da campanha"
+                      value="—"
+                      sub={stats.campaign.id}
+                    />
+                  </div>
                 </div>
 
                 {/* Tabela de links clicados */}
-                <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                  <div className="px-5 py-4 flex items-center justify-between border-b border-gray-100">
-                    <h3 className="text-sm font-bold text-[#0d0d0d]">Links mais clicados</h3>
-                    <button
-                      onClick={handleCopyLinks}
-                      disabled={!stats.topLinks?.length}
-                      className="text-xs border border-gray-300 hover:border-[#ff4000] hover:text-[#ff4000] text-[#7a7773] px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    >
-                      {copiedLinks ? "Copiado!" : "Copiar para Excel"}
-                    </button>
-                  </div>
+                <div className="px-5 pb-5">
+                  <div className="border border-gray-200 rounded-xl overflow-hidden">
+                    <div className="px-4 py-3 flex items-center justify-between border-b border-gray-100 bg-gray-50">
+                      <h3 className="text-xs font-bold text-[#0d0d0d]">Links mais clicados</h3>
+                      <button
+                        onClick={handleCopyLinks}
+                        disabled={!stats.topLinks?.length}
+                        className="text-[11px] border border-gray-300 hover:border-[#ff4000] hover:text-[#ff4000] text-[#7a7773] px-2 py-1 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        {copiedLinks ? "Copiado!" : "Copiar"}
+                      </button>
+                    </div>
 
-                  {!stats.topLinks?.length ? (
-                    <div className="p-8 text-center text-sm text-[#7a7773]">
-                      Nenhum clique registrado ainda.
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="bg-gray-50 text-left">
-                            <th className="px-5 py-3 font-semibold text-[#0d0d0d] text-xs uppercase tracking-wide">#</th>
-                            <th className="px-5 py-3 font-semibold text-[#0d0d0d] text-xs uppercase tracking-wide">Label</th>
-                            <th className="px-5 py-3 font-semibold text-[#0d0d0d] text-xs uppercase tracking-wide">Link</th>
-                            <th className="px-5 py-3 font-semibold text-[#0d0d0d] text-xs uppercase tracking-wide text-right">Cliques</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                          {stats.topLinks.map((link, i) => (
-                            <tr key={i} className="hover:bg-gray-50 transition-colors">
-                              <td className="px-5 py-3 text-[#7a7773]">{i + 1}</td>
-                              <td className="px-5 py-3 text-[#0d0d0d] font-medium max-w-[200px] truncate">
-                                {link.link_label || "—"}
-                              </td>
-                              <td className="px-5 py-3 max-w-[320px]">
-                                <a
-                                  href={link.original_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-[#ff4000] hover:underline truncate block"
-                                  title={link.original_url}
-                                >
-                                  {link.original_url}
-                                </a>
-                              </td>
-                              <td className="px-5 py-3 text-right font-bold text-[#0d0d0d]">
-                                {link.total_clicks}
-                              </td>
+                    {!stats.topLinks?.length ? (
+                      <div className="p-6 text-center text-sm text-[#7a7773]">
+                        Nenhum clique registrado ainda.
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs">
+                          <thead>
+                            <tr className="text-left">
+                              <th className="px-4 py-2 font-semibold text-[#0d0d0d] uppercase tracking-wide">#</th>
+                              <th className="px-4 py-2 font-semibold text-[#0d0d0d] uppercase tracking-wide">Label</th>
+                              <th className="px-4 py-2 font-semibold text-[#0d0d0d] uppercase tracking-wide">Link</th>
+                              <th className="px-4 py-2 font-semibold text-[#0d0d0d] uppercase tracking-wide text-right">Cliques</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
+                          </thead>
+                          <tbody className="divide-y divide-gray-100">
+                            {stats.topLinks.map((link, i) => (
+                              <tr key={i} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-4 py-2 text-[#7a7773]">{i + 1}</td>
+                                <td className="px-4 py-2 text-[#0d0d0d] font-medium max-w-[120px] truncate">
+                                  {link.link_label || "—"}
+                                </td>
+                                <td className="px-4 py-2 max-w-[180px]">
+                                  <a
+                                    href={link.original_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[#ff4000] hover:underline truncate block"
+                                    title={link.original_url}
+                                  >
+                                    {link.original_url}
+                                  </a>
+                                </td>
+                                <td className="px-4 py-2 text-right font-bold text-[#0d0d0d]">
+                                  {link.total_clicks}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </>
+
+              </div>
             ) : null}
-          </section>
+          </aside>
         )}
       </div>
     </div>

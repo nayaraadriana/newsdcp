@@ -109,13 +109,21 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
         });
         break;
 
-      case "hero":
+      case "hero": {
+        const imagePosition = block.imagePosition || "above";
+        const heroImageHtml = block.imageUrl
+          ? `<div style="text-align: center;">
+              <img class="hero-img" src="${block.imageUrl}" alt="${block.title}" width="600" style="width:100%;max-width:600px;height:auto;border-radius:8px;display:block;margin:0 auto 16px auto;" />
+            </div>`
+          : "";
         sections += inject(readPartial("hero.html"), {
-          IMAGEM_HERO: block.imageUrl || "",
+          IMAGEM_HERO_ABOVE: imagePosition === "above" ? heroImageHtml : "",
+          IMAGEM_HERO_BELOW: imagePosition === "below" ? heroImageHtml : "",
           TITULO_HERO: block.title,
           TEXTO_HERO: formatText(block.text, "font-family:'Hotmart Sans',sans-serif;font-size:16px;font-weight:400;line-height:1.6;color:#0d0d0d;"),
         });
         break;
+      }
 
       case "highlight": {
         const bgColor = highlightBgColors[highlightIndex % 2];
@@ -123,34 +131,50 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
         highlightBannerInserted = true;
         highlightIndex++;
 
+        const imagePosition = block.imagePosition || "above";
+        const imageHighlight = block.imageUrl
+          ? `<tr><td style="padding: 8px 16px 0 16px; background-color: ${bgColor};"><img src="${block.imageUrl}" alt="${block.title}" width="100%" style="width:100%;height:auto;border-radius:8px;display:block;"></td></tr>`
+          : "";
+
         let rendered = highlightPartial.replace("{{HIGHLIGHT_BANNER}}", banner);
         rendered = inject(rendered, {
           TITULO_HIGHLIGHT: block.title,
           TEXTO_HIGHLIGHT: formatText(block.text, "font-family:'Hotmart Sans',sans-serif;font-size:14px;font-weight:400;line-height:1.6;color:#ffffff;"),
           BG_COLOR: bgColor,
+          IMAGEM_HIGHLIGHT_ABOVE: imagePosition === "above" ? imageHighlight : "",
+          IMAGEM_HIGHLIGHT_BELOW: imagePosition === "below" ? imageHighlight : "",
         });
         sections += rendered;
         break;
       }
 
       case "content": {
+        const imagePosition = block.imagePosition || "above";
         const imageBlock = block.imageUrl
           ? `<tr><td style="padding: 0 16px 16px 16px; background-color: #ffffff;"><img src="${block.imageUrl}" alt="${block.title}" width="504" style="width:100%;max-width:504px;height:auto;border-radius:8px;display:block;"></td></tr>`
           : "";
         sections += inject(readPartial("content.html"), {
           TITULO_CONTENT: block.title,
           TEXTO_CONTENT: formatText(block.text, "font-family:'Hotmart Sans',sans-serif;font-size:16px;font-weight:400;line-height:1.6;color:#0d0d0d;"),
-          IMAGEM_CONTENT_BLOCK: imageBlock,
+          IMAGEM_CONTENT_ABOVE: imagePosition === "above" ? imageBlock : "",
+          IMAGEM_CONTENT_BELOW: imagePosition === "below" ? imageBlock : "",
         });
         break;
       }
 
-      case "fique_de_olho":
+      case "fique_de_olho": {
+        const imagePosition = block.imagePosition || "above";
+        const imageFiqueDeOlho = block.imageUrl
+          ? `<tr><td style="padding: 8px 16px 0 16px; background-color: #eae9e7;"><img src="${block.imageUrl}" alt="${block.title}" width="100%" style="width:100%;height:auto;border-radius:8px;display:block;"></td></tr>`
+          : "";
         sections += inject(readPartial("fique_de_olho.html"), {
           TITULO_FIQUE_DE_OLHO: block.title,
           TEXTO_FIQUE_DE_OLHO: formatText(block.text, "font-family:'Hotmart Sans',sans-serif;font-size:14px;font-weight:400;line-height:1.6;color:#0d0d0d;"),
+          IMAGEM_FIQUE_DE_OLHO_ABOVE: imagePosition === "above" ? imageFiqueDeOlho : "",
+          IMAGEM_FIQUE_DE_OLHO_BELOW: imagePosition === "below" ? imageFiqueDeOlho : "",
         });
         break;
+      }
 
       default:
         console.warn(`[renderTemplate] Tipo de bloco desconhecido: ${block.type}`);
@@ -162,6 +186,11 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
         fique_de_olho: "#eae9e7",
       };
       sections += await renderButtonSection(block, campaignId, sectionBgMap[block.type]);
+    }
+
+    // Linha divisória do content — sempre no final da seção, após o botão
+    if (block.type === "content" && block.dividerEnabled) {
+      sections += `<tr><td style="padding: 0 16px; background-color: #ffffff;"><hr style="border:none;border-top:1px solid #e0e0e0;margin:16px 0 0 0;"></td></tr>`;
     }
   }
 

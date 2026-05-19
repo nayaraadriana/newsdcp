@@ -93,6 +93,24 @@ export async function getCampaignStats(campaignId: string, userId: string) {
   };
 }
 
+// ─── Exclusão de campanha ────────────────────────────────────────
+
+export async function deleteCampaign(campaignId: string, userId: string): Promise<boolean> {
+  const campaign = await sql`
+    SELECT id FROM campaigns WHERE id = ${campaignId} AND created_by = ${userId}
+  `;
+
+  if (campaign.length === 0) return false;
+
+  await sql`DELETE FROM clicks WHERE campaign_id = ${campaignId}`;
+  await sql`DELETE FROM opens WHERE campaign_id = ${campaignId}`;
+  await sql`DELETE FROM tracked_links WHERE campaign_id = ${campaignId}`;
+  await sql`DELETE FROM recipients WHERE campaign_id = ${campaignId}`;
+  await sql`DELETE FROM campaigns WHERE id = ${campaignId}`;
+
+  return true;
+}
+
 // ─── Destinatários ──────────────────────────────────────────────
 
 export async function addRecipient(
