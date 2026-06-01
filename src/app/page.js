@@ -47,6 +47,14 @@ const SECTION_TYPES = [
     placeholderTitle: "Ex: Evento importante chegando",
     placeholderText: "Ex: Na próxima semana teremos um webinar exclusivo...",
   },
+  {
+    value: "divider",
+    label: "Linha Divisória",
+    description: "Linha horizontal para separar seções",
+    hasImage: false,
+    placeholderTitle: "",
+    placeholderText: "",
+  },
 ];
 
 function createBlock(type = "intro") {
@@ -384,6 +392,7 @@ export default function Home() {
                   {/* Descrição */}
                   <p className="text-xs text-[#7a7773]">{meta.description}</p>
 
+                  {block.type !== "divider" && (
                   <>
                     {/* Campo título */}
                     <input
@@ -475,27 +484,8 @@ export default function Home() {
                         />
                       )}
                     </div>
-
-                    {/* Toggle linha divisória — apenas para blocos content */}
-                    {block.type === "content" && (
-                      <div className="border-t border-gray-100 pt-3">
-                        <label className="flex items-center gap-2 cursor-pointer select-none">
-                          <input
-                            type="checkbox"
-                            className="w-4 h-4 accent-[#ff4000] cursor-pointer"
-                            checked={block.dividerEnabled ?? false}
-                            onChange={(e) =>
-                              updateBlock(block.id, "dividerEnabled", e.target.checked)
-                            }
-                          />
-                          <span className="text-xs font-semibold text-[#0d0d0d]">Linha divisória</span>
-                        </label>
-                        <p className="text-xs text-[#7a7773] mt-1 ml-6">
-                          Exibe uma linha cinza ao final desta seção
-                        </p>
-                      </div>
-                    )}
                   </>
+                  )}
                 </div>
               );
             })}

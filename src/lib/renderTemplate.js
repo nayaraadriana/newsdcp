@@ -31,7 +31,7 @@ function formatText(text, style = "") {
 
   const flushList = () => {
     if (listItems.length === 0) return;
-    result.push(`<ul style="margin:4px 0;padding-left:20px;">${listItems.join("")}</ul>`);
+    result.push(`<ul style="margin:4px 0;padding-left:20px;${style}">${listItems.join("")}</ul>`);
     listItems = [];
   };
 
@@ -41,7 +41,8 @@ function formatText(text, style = "") {
       listItems.push(`<li style="margin:0 0 4px 0;${style}">${content}</li>`);
     } else {
       flushList();
-      result.push(parseInlineLinks(line));
+      const content = parseInlineLinks(line);
+      result.push(content ? `<span style="${style}">${content}</span>` : "");
     }
   }
   flushList();
@@ -101,6 +102,13 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
   }
 
   for (const block of blocks) {
+    // Reseta o banner de highlights quando um bloco não-highlight aparece,
+    // para que o próximo grupo de highlights receba seu próprio header.
+    if (block.type !== "highlight") {
+      highlightBannerInserted = false;
+      highlightIndex = 0;
+    }
+
     switch (block.type) {
       case "intro":
         sections += inject(readPartial("intro.html"), {
@@ -139,7 +147,7 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
         let rendered = highlightPartial.replace("{{HIGHLIGHT_BANNER}}", banner);
         rendered = inject(rendered, {
           TITULO_HIGHLIGHT: block.title,
-          TEXTO_HIGHLIGHT: formatText(block.text, "font-family:'Hotmart Sans',sans-serif;font-size:14px;font-weight:400;line-height:1.6;color:#ffffff;"),
+          TEXTO_HIGHLIGHT: formatText(block.text, "font-family:'Hotmart Sans',sans-serif;font-size:16px;font-weight:400;line-height:1.6;color:#ffffff;"),
           BG_COLOR: bgColor,
           IMAGEM_HIGHLIGHT_ABOVE: imagePosition === "above" ? imageHighlight : "",
           IMAGEM_HIGHLIGHT_BELOW: imagePosition === "below" ? imageHighlight : "",
@@ -169,10 +177,15 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
           : "";
         sections += inject(readPartial("fique_de_olho.html"), {
           TITULO_FIQUE_DE_OLHO: block.title,
-          TEXTO_FIQUE_DE_OLHO: formatText(block.text, "font-family:'Hotmart Sans',sans-serif;font-size:14px;font-weight:400;line-height:1.6;color:#0d0d0d;"),
+          TEXTO_FIQUE_DE_OLHO: formatText(block.text, "font-family:'Hotmart Sans',sans-serif;font-size:16px;font-weight:400;line-height:1.6;color:#0d0d0d;"),
           IMAGEM_FIQUE_DE_OLHO_ABOVE: imagePosition === "above" ? imageFiqueDeOlho : "",
           IMAGEM_FIQUE_DE_OLHO_BELOW: imagePosition === "below" ? imageFiqueDeOlho : "",
         });
+        break;
+      }
+
+      case "divider": {
+        sections += `<tr><td style="padding: 0 16px; background-color: #ffffff;"><hr style="border:none;border-top:1px solid #e0e0e0;margin:16px 0;"></td></tr>`;
         break;
       }
 
@@ -186,11 +199,6 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
         fique_de_olho: "#eae9e7",
       };
       sections += await renderButtonSection(block, campaignId, sectionBgMap[block.type]);
-    }
-
-    // Linha divisória do content — sempre no final da seção, após o botão
-    if (block.type === "content" && block.dividerEnabled) {
-      sections += `<tr><td style="padding: 0 16px; background-color: #ffffff;"><hr style="border:none;border-top:1px solid #e0e0e0;margin:16px 0 0 0;"></td></tr>`;
     }
   }
 
