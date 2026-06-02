@@ -146,7 +146,7 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
         const imagePosition = block.imagePosition || "above";
         const heroImageHtml = block.imageUrl
           ? `<div style="text-align: center;">
-              <img class="hero-img" src="${block.imageUrl}" alt="${block.title}" width="600" style="width:100%;max-width:600px;height:auto;border-radius:8px;display:block;margin:0 auto 16px auto;" />
+              <img class="hero-img" src="${block.imageUrl}" alt="${block.title}" style="max-width:100%;height:auto;border-radius:8px;display:block;margin:0 auto 16px auto;" />
             </div>`
           : "";
         sections += inject(readPartial("hero.html"), {
@@ -165,8 +165,11 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
         highlightIndex++;
 
         const imagePosition = block.imagePosition || "above";
-        const imageHighlight = block.imageUrl
-          ? `<tr><td style="padding: 8px 16px 0 16px; background-color: ${bgColor};"><img src="${block.imageUrl}" alt="${block.title}" width="100%" style="width:100%;height:auto;border-radius:8px;display:block;"></td></tr>`
+        const imageHighlightAbove = block.imageUrl
+          ? `<tr><td style="padding: 8px 16px 0 16px; background-color: ${bgColor};"><img src="${block.imageUrl}" alt="${block.title}" style="max-width:100%;height:auto;border-radius:8px;display:block;"></td></tr>`
+          : "";
+        const imageHighlightBelow = block.imageUrl
+          ? `<tr><td style="padding: 8px 16px 16px 16px; background-color: ${bgColor};"><img src="${block.imageUrl}" alt="${block.title}" style="max-width:100%;height:auto;border-radius:8px;display:block;"></td></tr>`
           : "";
 
         let rendered = highlightPartial.replace("{{HIGHLIGHT_BANNER}}", banner);
@@ -174,8 +177,8 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
           TITULO_HIGHLIGHT: block.title,
           TEXTO_HIGHLIGHT: formatText(block.text, "font-family:'Hotmart Sans',sans-serif;font-size:16px;font-weight:400;line-height:1.6;color:#ffffff;"),
           BG_COLOR: bgColor,
-          IMAGEM_HIGHLIGHT_ABOVE: imagePosition === "above" ? imageHighlight : "",
-          IMAGEM_HIGHLIGHT_BELOW: imagePosition === "below" ? imageHighlight : "",
+          IMAGEM_HIGHLIGHT_ABOVE: imagePosition === "above" ? imageHighlightAbove : "",
+          IMAGEM_HIGHLIGHT_BELOW: imagePosition === "below" ? imageHighlightBelow : "",
         });
         sections += rendered;
         break;
@@ -184,7 +187,7 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
       case "content": {
         const imagePosition = block.imagePosition || "above";
         const imageBlock = block.imageUrl
-          ? `<tr><td style="padding: 0 16px 16px 16px; background-color: #ffffff;"><img src="${block.imageUrl}" alt="${block.title}" width="504" style="width:100%;max-width:504px;height:auto;border-radius:8px;display:block;"></td></tr>`
+          ? `<tr><td style="padding: 0 16px 16px 16px; background-color: #ffffff;"><img src="${block.imageUrl}" alt="${block.title}" style="max-width:100%;height:auto;border-radius:8px;display:block;"></td></tr>`
           : "";
         sections += inject(readPartial("content.html"), {
           TITULO_CONTENT: block.title,
@@ -197,8 +200,11 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
 
       case "fique_de_olho": {
         const imagePosition = block.imagePosition || "above";
-        const imageFiqueDeOlho = block.imageUrl
-          ? `<tr><td style="padding: 8px 16px 0 16px; background-color: #eae9e7;"><img src="${block.imageUrl}" alt="${block.title}" width="100%" style="width:100%;height:auto;border-radius:8px;display:block;"></td></tr>`
+        const imageFiqueDeOlhoAbove = block.imageUrl
+          ? `<tr><td style="padding: 8px 16px 0 16px; background-color: #eae9e7;"><img src="${block.imageUrl}" alt="${block.title}" style="max-width:100%;height:auto;border-radius:8px;display:block;"></td></tr>`
+          : "";
+        const imageFiqueDeOlhoBelow = block.imageUrl
+          ? `<tr><td style="padding: 8px 16px 16px 16px; background-color: #eae9e7;"><img src="${block.imageUrl}" alt="${block.title}" style="max-width:100%;height:auto;border-radius:8px;display:block;"></td></tr>`
           : "";
         const fiqueDeOlhoBanner = fiqueDeOlhoBannerInserted ? "" : FIQUE_DE_OLHO_BANNER;
         fiqueDeOlhoBannerInserted = true;
@@ -207,8 +213,8 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
         renderedFdo = inject(renderedFdo, {
           TITULO_FIQUE_DE_OLHO: block.title,
           TEXTO_FIQUE_DE_OLHO: formatText(block.text, "font-family:'Hotmart Sans',sans-serif;font-size:16px;font-weight:400;line-height:1.6;color:#0d0d0d;"),
-          IMAGEM_FIQUE_DE_OLHO_ABOVE: imagePosition === "above" ? imageFiqueDeOlho : "",
-          IMAGEM_FIQUE_DE_OLHO_BELOW: imagePosition === "below" ? imageFiqueDeOlho : "",
+          IMAGEM_FIQUE_DE_OLHO_ABOVE: imagePosition === "above" ? imageFiqueDeOlhoAbove : "",
+          IMAGEM_FIQUE_DE_OLHO_BELOW: imagePosition === "below" ? imageFiqueDeOlhoBelow : "",
         });
         sections += renderedFdo;
         break;
