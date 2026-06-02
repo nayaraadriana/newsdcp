@@ -69,6 +69,23 @@ const HIGHLIGHTS_BANNER = `
 </tr>`;
 
 /**
+ * Banner do bloco Fique de Olho — exibido apenas antes do primeiro do grupo.
+ */
+const FIQUE_DE_OLHO_BANNER = `
+<tr>
+  <td style="padding: 0; background-color:#eae9e7;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+      <tr>
+        <td align="center" style="padding: 8px 8px;">
+          <img src="https://newsletterdcp.s3.us-east-2.amazonaws.com/template-resources/fiqueDeolho.png"
+            alt="Fique de Olho" width="100%" style="display:block; border:0; max-width:100%; height:auto;">
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>`;
+
+/**
  * Monta o HTML final a partir da lista de blocos selecionados pelo usuário.
  *
  * @param {Array<{type: string, title: string, text: string, imageUrl?: string}>} blocks
@@ -85,6 +102,7 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
   );
 
   const highlightPartial = readPartial("highlight.html");
+  const fiqueDeOlhoPartial = readPartial("fique_de_olho.html");
   // Cores de fundo alternadas para os highlights (zebra)
   const highlightBgColors = ["#0D0D0D", "#0D0D0D"];
 
@@ -92,6 +110,8 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
   // Controla se o banner de Highlights já foi inserido
   let highlightBannerInserted = false;
   let highlightIndex = 0;
+  // Controla se o banner de Fique de Olho já foi inserido
+  let fiqueDeOlhoBannerInserted = false;
 
   // Injeta o header de imagem full-width quando uma URL for fornecida
   if (headerImageUrl?.trim()) {
@@ -102,11 +122,16 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
   }
 
   for (const block of blocks) {
-    // Reseta o banner de highlights quando um bloco não-highlight aparece,
-    // para que o próximo grupo de highlights receba seu próprio header.
-    if (block.type !== "highlight") {
+    // Reseta o banner de highlights quando um bloco que não é highlight
+    // nem divider aparece, para que o próximo grupo receba seu próprio header.
+    if (block.type !== "highlight" && block.type !== "divider") {
       highlightBannerInserted = false;
       highlightIndex = 0;
+    }
+    // Reseta o banner de fique de olho quando um bloco que não é fique_de_olho
+    // nem divider aparece, para que o próximo grupo receba seu próprio header.
+    if (block.type !== "fique_de_olho" && block.type !== "divider") {
+      fiqueDeOlhoBannerInserted = false;
     }
 
     switch (block.type) {
@@ -175,17 +200,29 @@ export async function renderTemplate(blocks, campaignId = null, surveyUrl = null
         const imageFiqueDeOlho = block.imageUrl
           ? `<tr><td style="padding: 8px 16px 0 16px; background-color: #eae9e7;"><img src="${block.imageUrl}" alt="${block.title}" width="100%" style="width:100%;height:auto;border-radius:8px;display:block;"></td></tr>`
           : "";
-        sections += inject(readPartial("fique_de_olho.html"), {
+        const fiqueDeOlhoBanner = fiqueDeOlhoBannerInserted ? "" : FIQUE_DE_OLHO_BANNER;
+        fiqueDeOlhoBannerInserted = true;
+
+        let renderedFdo = fiqueDeOlhoPartial.replace("{{FIQUE_DE_OLHO_BANNER}}", fiqueDeOlhoBanner);
+        renderedFdo = inject(renderedFdo, {
           TITULO_FIQUE_DE_OLHO: block.title,
           TEXTO_FIQUE_DE_OLHO: formatText(block.text, "font-family:'Hotmart Sans',sans-serif;font-size:16px;font-weight:400;line-height:1.6;color:#0d0d0d;"),
           IMAGEM_FIQUE_DE_OLHO_ABOVE: imagePosition === "above" ? imageFiqueDeOlho : "",
           IMAGEM_FIQUE_DE_OLHO_BELOW: imagePosition === "below" ? imageFiqueDeOlho : "",
         });
+        sections += renderedFdo;
         break;
       }
 
       case "divider": {
-        sections += `<tr><td style="padding: 0 16px; background-color: #ffffff;"><hr style="border:none;border-top:1px solid #e0e0e0;margin:16px 0;"></td></tr>`;
+        // Se estamos dentro de um grupo de highlights, usa fundo escuro e linha clara
+        if (highlightBannerInserted) {
+          sections += `<tr><td style="padding: 0 16px; background-color: #0D0D0D;"><hr style="border:none;border-top:1px solid #2E2E2C;margin:16px 0;"></td></tr>`;
+        } else if (fiqueDeOlhoBannerInserted) {
+          sections += `<tr><td style="padding: 0 16px; background-color: #eae9e7;"><hr style="border:none;border-top:1px solid #c9c7c4;margin:16px 0;"></td></tr>`;
+        } else {
+          sections += `<tr><td style="padding: 0 16px; background-color: #ffffff;"><hr style="border:none;border-top:1px solid #e0e0e0;margin:16px 0;"></td></tr>`;
+        }
         break;
       }
 
