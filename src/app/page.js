@@ -200,6 +200,9 @@ export default function Home() {
           <p className="text-sm text-[#7a7773]">DCP — Hotmart</p>
         </div>
         <div className="flex items-center gap-4">
+          <Link href="/links" className="text-sm text-[#ff4000] hover:underline font-medium">
+            Links rastreáveis
+          </Link>
           <Link href="/stats" className="text-sm text-[#ff4000] hover:underline font-medium">
             Monitoramento →
           </Link>

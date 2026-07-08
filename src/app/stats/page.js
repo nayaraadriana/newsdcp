@@ -138,12 +138,14 @@ export default function StatsPage() {
           <h1 className="text-lg font-bold text-[#0d0d0d]">Monitoramento de Campanhas</h1>
           <p className="text-sm text-[#7a7773]">DCP — Hotmart</p>
         </div>
-        <Link
-          href="/"
-          className="text-sm text-[#ff4000] hover:underline font-medium"
-        >
-          ← Voltar ao gerador
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/" className="text-sm text-[#ff4000] hover:underline font-medium">
+            Newsletter
+          </Link>
+          <Link href="/links" className="text-sm text-[#ff4000] hover:underline font-medium">
+            Links rastreáveis
+          </Link>
+        </div>
       </header>
 
       {error && (
