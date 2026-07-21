@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { registerClick } from '@/lib/db';
+import { dispatchClickWebhook } from '@/lib/webhook';
 
 export const runtime = 'edge';
 
@@ -22,6 +23,17 @@ export async function GET(
 
     await registerClick(recipientId, campaignId, originalUrl, linkLabel, ip, userAgent)
         .catch((err) => console.error('[TRACK_CLICK_ERROR]', err));
+
+    // Dispatch webhook after persisting — fire-and-forget, never blocks the redirect
+    dispatchClickWebhook({
+        campaignId,
+        recipientId,
+        originalUrl,
+        linkLabel,
+        ip,
+        userAgent,
+        clickedAt: new Date().toISOString(),
+    }).catch((err) => console.error('[WEBHOOK_CLICK_DISPATCH_ERROR]', err));
 
     return NextResponse.redirect(originalUrl, 302);
 }
