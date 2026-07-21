@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
+import { dispatchClickWebhook } from '@/lib/webhook';
 
 const sql = neon(process.env.DATABASE_URL!);
 
@@ -25,6 +26,17 @@ export async function GET(
         INSERT INTO clicks (recipient_id, campaign_id, original_url, link_label, ip_address, user_agent)
         VALUES (${null}, ${campaign_id}, ${original_url}, ${label}, ${ip}, ${userAgent})
     `.catch((err) => console.error('[TRACK_LINK_ERROR]', err));
+
+    // Dispatch webhook after persisting — fire-and-forget, never blocks the redirect
+    dispatchClickWebhook({
+        campaignId: campaign_id,
+        recipientId: '',
+        originalUrl: original_url,
+        linkLabel: label ?? '',
+        ip,
+        userAgent,
+        clickedAt: new Date().toISOString(),
+    }).catch((err) => console.error('[WEBHOOK_CLICK_DISPATCH_ERROR]', err));
 
     return NextResponse.redirect(original_url, 302);
 }
